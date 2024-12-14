@@ -10,7 +10,7 @@
     }
 </script>
 <template>
-    <mdui-top-app-bar variant="center-aligned" scroll-behavior="elevate">
+    <mdui-top-app-bar variant="center-aligned">
         <mdui-button-icon icon="menu" @click="changeSidebarStatus"></mdui-button-icon>
         <mdui-top-app-bar-title>Title</mdui-top-app-bar-title>
         <AddConversation></AddConversation>

@@ -21,13 +21,46 @@
 		<Bottombar></Bottombar>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)"></Header>
 		<Sidebar :sidebarStatus="sidebarStatus" @closeSidebar="changeSidebarStatus(false)"></Sidebar>
-		<mdui-layout-main>
+		<mdui-layout-main class="content">
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
+			<h1 style="text-align: center;">Man!</h1>
 			<h1 style="text-align: center;">Man!</h1>
 		</mdui-layout-main>
 	</mdui-layout>
 </template>
 <style scoped>
 mdui-layout-main {
-	background-color: black
+	background-color: black;
 }
 </style>

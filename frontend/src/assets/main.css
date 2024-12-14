@@ -22,5 +22,17 @@ html, body, #app  {
 mdui-dialog mdui-text-field {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    /* width: 500px; */
 }
+
+/* @media (min-width: 625px) {
+    mdui-dialog mdui-text-field {
+        width: 30rem;
+    }
+}
+@media (min-width: 500px) {
+    @media (max-width: 625px) {
+        mdui-dialog mdui-text-field {
+            width: 20rem;
+        }
+    } 
+}*/
