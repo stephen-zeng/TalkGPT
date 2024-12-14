@@ -1,39 +1,33 @@
 <script setup>
-    import ItemSpace from './framework/ItemSpace.vue';
 	import Header from './framework/Header.vue';
-	import AddItem from './framework/AddItem.vue';
+	import Sidebar from './framework/Sidebar.vue';
+	import Bottombar from './framework/Bottombar.vue';
 	import { ref } from 'vue';
 
-	const itemList = ref([])
+	const sidebarStatus = ref(false);
 
-	function warn(content) {
-		window.alert(content);
-	}
-	function addItem(item) {
-		// console.log(item);
-		itemList.value.push({
-			title: item.title,
-			content: item.content,
-			preview: item.content.substring(0,15)+'...',
-		});
-	}
+	function changeSidebarStatus(way) {
+		// console.log(sidebarStatus.value)
+		if (way) {
+			if (sidebarStatus.value) sidebarStatus.value = false;
+			else sidebarStatus.value = true;
+		} else sidebarStatus.value = false;
+    }
+	
+
 </script>
 <template>
-	<div class="header">
-		<Header></Header>
-	</div>
-	<div class="item-space">
-		<ItemSpace :itemList="itemList"></ItemSpace>
-	</div>
-	<div class="add-item">
-		<AddItem @addItem="addItem"></AddItem>
-	</div>
+	<mdui-layout full-height>
+		<Bottombar></Bottombar>
+		<Header @changeSidebarStatus="changeSidebarStatus(true)"></Header>
+		<Sidebar :sidebarStatus="sidebarStatus" @closeSidebar="changeSidebarStatus(false)"></Sidebar>
+		<mdui-layout-main>
+			<h1 style="text-align: center;">Man!</h1>
+		</mdui-layout-main>
+	</mdui-layout>
 </template>
 <style scoped>
-	.item-space {
-		margin: 0 auto;
-		padding: 1rem;
-		font-weight: normal;
-		text-align: center;
-	}
+mdui-layout-main {
+	background-color: black
+}
 </style>
