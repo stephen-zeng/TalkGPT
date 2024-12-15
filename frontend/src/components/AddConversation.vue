@@ -27,8 +27,8 @@
     }
 </script>
 <template>
-    <mdui-dialog :open=dialogStatus
-    icon="add" headline="New">
+    <mdui-dialog :open=dialogStatus @overlay-click="cancelDialog()"
+    icon="add" headline="New" close-on-overlay-click>
         <mdui-text-field label="Title" variant="outlined" clearable
         :value="title" @input="title=$event.target.value"></mdui-text-field>
         <mdui-text-field label="Instruction" variant="outlined" clearable autosize
