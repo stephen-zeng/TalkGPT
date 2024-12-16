@@ -12,7 +12,4 @@
 	</mdui-layout-main>
 </template>
 <style scope>
-mdui-layout-main {
-	background-color: black;
-}
 </style>

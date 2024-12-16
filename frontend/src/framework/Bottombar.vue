@@ -44,8 +44,8 @@
 
 </script>
 <template>
-    <div style="overflow: hidden">
-        <mdui-bottom-app-bar style="justify-content: center;" id="voiceManual"
+    <div style="overflow: hidden;">
+        <mdui-bottom-app-bar style="justify-content: center;"
         scroll-behavior="hide"
         scroll-threshold="30"
         scroll-target=".content">

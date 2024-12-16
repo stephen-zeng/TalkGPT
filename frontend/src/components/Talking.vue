@@ -5,8 +5,8 @@
     
     function setRole(role) { // 1为GPT，0为用户
         console.log(text.value);
-        if (role) return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/202412151538968.png";
-        else return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/logo-bg.png";
+        if (role) return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/openai.png";
+        else return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/user.png";
     }
     function getRole(role) {
         // console.log(message);

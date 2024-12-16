@@ -21,5 +21,7 @@
 	</mdui-navigation-drawer>
 </template>
 <style scoped>
-    
+mdui-navigation-drawer {
+    box-shadow: 0px 0px 10px #000000;
+}
 </style>

@@ -28,7 +28,7 @@
 </script>
 <template>
     <mdui-dialog :open=dialogStatus @overlay-click="cancelDialog()"
-    icon="add" headline="New" close-on-overlay-click>
+    icon="add" headline="New Conversation" close-on-overlay-click>
         <mdui-text-field label="Title" variant="outlined" clearable
         :value="title" @input="title=$event.target.value"></mdui-text-field>
         <mdui-text-field label="Instruction" variant="outlined" clearable autosize
@@ -50,6 +50,9 @@
         <mdui-button slot="action" @click="submit">Done</mdui-button>
     </mdui-dialog>
     <mdui-button-icon icon="add" @click="openDialog"></mdui-button-icon>
+    <!-- <mdui-tooltip content="New Conversation" placement="top-right">
+        <mdui-fab icon="add" @click="openDialog"></mdui-fab>
+    </mdui-tooltip> -->
 </template>
 <style scope>
 #voiceBtn {
