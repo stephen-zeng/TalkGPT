@@ -1,0 +1,27 @@
+[
+    {
+        "title": "A conversation",
+        "uuid": "whatever",
+        "manual_free": true,
+        "vad_free": true,
+        "vad_url": "ws://example.com",
+        "voice": "default",
+        "instruction": "abababababababba",
+        "mamual": [
+            {
+                "role": true,
+                "message": "abababababababa",
+                "voice": "https://example.com",
+                "time": "a time"
+            }
+        ],
+        "vad": [
+            {
+                "role": true,
+                "message": "abababababababa",
+                "voice": "https://example.com",
+                "time": "a time"
+            }
+        ]
+    }
+]

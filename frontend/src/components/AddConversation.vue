@@ -29,7 +29,7 @@
 <template>
     <mdui-dialog :open=dialogStatus @overlay-click="cancelDialog()"
     icon="add" headline="New Conversation" close-on-overlay-click>
-        <mdui-text-field label="Title" variant="outlined" clearable
+        <mdui-text-field label="Title" variant="outlined" clearable maxlength="100" counter
         :value="title" @input="title=$event.target.value"></mdui-text-field>
         <mdui-text-field label="Instruction" variant="outlined" clearable autosize
         :value="instruction" @input="instruction=$event.target.value"></mdui-text-field>

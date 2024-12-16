@@ -27,7 +27,7 @@
         <mdui-tooltip :content="getRole(role)" :placement="setStyle(!role)">
             <mdui-avatar :src="setRole(role)"></mdui-avatar>
         </mdui-tooltip>
-        <mdui-text-field variant="outlined" :label="getRole(role)" :value="message" readonly>
+        <mdui-text-field variant="outlined" label="Date" :value="message" readonly>
             <mdui-button-icon slot="end-icon" icon="play_circle"></mdui-button-icon>
         </mdui-text-field>
     </div>
