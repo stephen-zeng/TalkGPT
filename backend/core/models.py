@@ -11,18 +11,23 @@ class Conversation(models.Model):
     manual_free = models.BooleanField(default=True)
     voice = models.CharField(max_length=7)
     instruction = models.TextField()
-    manual = models.ForeignKey("Manual",
-                               on_delete=models.CASCADE)
-    vad = models.ForeignKey("VAD",
-                            on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now=True)
 
 class Manual(models.Model):
+    conversation = models.ForeignKey("Conversation",
+                                     on_delete=models.CASCADE,
+                                     related_name="manual",
+                                     null=True)
     role = models.BooleanField()
     message = models.TextField()
     voice = models.URLField()
     time = models.DateTimeField(auto_now=True)
 
 class VAD(models.Model):
+    conversation = models.ForeignKey("Conversation",
+                                     on_delete=models.CASCADE,
+                                     related_name="vad",
+                                     null=True)
     role = models.BooleanField()
     message = models.TextField()
     voice = models.URLField()

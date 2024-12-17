@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Conversation
+from .serializer import ConversationSerializer
 
-# Create your views here.
+class ConversationViewset(viewsets.ModelViewSet):
+    queryset = Conversation.objects.all().order_by('time')
+    serializer_class = ConversationSerializer
