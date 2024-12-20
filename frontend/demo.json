@@ -1,4 +1,4 @@
-[{
+{
 	"title": "1",
 	"uuid": "8569c3c2-6bf4-4b16-9921-d0641759ff56",
 	"vad_free": true,
@@ -43,4 +43,4 @@
 		"voice": "https://example.com",
 		"time": "2024-12-17T15:09:11.404485Z"
 	}]
-}]
+}

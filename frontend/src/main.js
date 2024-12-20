@@ -4,4 +4,5 @@ import 'mdui/mdui.css'
 import 'mdui'
 import './assets/main.css'
 
-createApp(App).mount('#app')
+const app = createApp(App);
+app.mount("#app");

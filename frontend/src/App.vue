@@ -3,178 +3,22 @@
 	import Sidebar from './framework/Sidebar.vue';
 	import Bottombar from './framework/Bottombar.vue';
 	import Conversation from './framework/Conversation.vue';
-	import { ref, onMounted, onBeforeMount } from 'vue';
+	import { io } from 'socket.io-client'
+	import { ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
 
 	let monitorID;
 	const sidebarStatus = ref(false);
 	const currentConversation = ref(0);
-	const conversations = [ // true->GPT; false->User;
-		{
-			title: 'Title 1',
-			id: '0',
-			conversation: [
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'oooooooooooooooo7y2348975y23487'
-				},
-			]
-		},
-		{
-			title: 'Title 2',
-			id: '1',
-			conversation: [
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'ffffffffffffffff2348975y23487'
-				},
-			]
-		},
-		{
-			title: 'Title 3',
-			id: '2',
-			conversation: [
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'bbbbbbbbbbbbbf267g345gy34f346yf34y6f346f348975y23487'
-				},
-			]
-		},
-		{
-			title: 'Title 4',
-			id: '3',
-			conversation: [
-				{
-					role: true,
-					message: 'asdjfhalskjdhlkj'
-				},
-				{
-					role: false,
-					message: 'aaaaaaaaaaaaaaa37y2348975y23487'
-				},
-			]
-		},
-	]
+	const conversations = ref([]);
+	const socket = io('http://127.0.0.1:11111');
 	const role = ref(false); // 1为GPT，0为用户
 
 	function changeSidebarStatus(way) {
 		// console.log(sidebarStatus.value)
 		// console.log(document.body.offsetWidth);
+		let i = currentConversation.value
+		let c = conversations.value
+		console.log(c);
 		if (way) {
 			if (sidebarStatus.value) sidebarStatus.value = false;
 			else sidebarStatus.value = true;
@@ -194,6 +38,27 @@
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
+	function getSocket() {
+		console.log("Init WS");
+		socket.on('connect',
+			()=> {
+				console.log("WS Connected");
+				socket.emit('get_data');
+			}
+		);
+		socket.on('disconnect',
+			()=> {
+				console.log("WS Disconnected");
+			}
+		);
+		socket.on('data_response',
+			(data)=> {
+				console.log("Receiving Data");
+				conversations.value.push(data);
+				// console.log(conversations.value);
+			}
+		)
+	}
 
 	onMounted(
 		()=> {
@@ -201,9 +66,14 @@
 			// clearInterval(monitorID);
 		}
 	);
-	onBeforeMount (
+	onBeforeUnmount (
 		()=> {
 			if (monitorID) clearInterval(monitorID);
+		}
+	);
+	onBeforeMount(
+		()=> {
+			getSocket();
 		}
 	)
 	

@@ -5,20 +5,20 @@ class ManualSerializer(serializers.ModelSerializer):
     class Meta:
         model = Manual
         fields = [
-            'role',
-            'message',
-            'voice',
-            'time'    
+            "role",
+            "message",
+            "voice",
+            "time"    
         ]
 
 class VADSerializer(serializers.ModelSerializer):
     class Meta:
         model = VAD
         fields = [
-            'role',
-            'message',
-            'voice',
-            'time'    
+            "role",
+            "message",
+            "voice",
+            "time"    
         ]
 
 class ConversationSerializer(serializers.ModelSerializer):
@@ -28,14 +28,14 @@ class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         fields = [
-            'title',
-            'uuid',
-            'vad_free',
-            'vad_url',
-            'manual_free',
-            'voice',
-            'instruction',
-            'time',
-            'manual',
-            'vad',
+            "title",
+            "uuid",
+            "vad_free",
+            "vad_url",
+            "manual_free",
+            "voice",
+            "instruction",
+            "time",
+            "manual",
+            "vad",
         ]
