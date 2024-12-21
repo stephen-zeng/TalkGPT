@@ -54,7 +54,8 @@
 		socket.on('data_response',
 			(data)=> {
 				console.log("Receiving Data");
-				conversations.value.push(data);
+				conversations.value = JSON.parse(data);
+				console.log(data);
 				// console.log(conversations.value);
 			}
 		)
@@ -83,12 +84,12 @@
 	<mdui-layout full-height>
 		<Bottombar></Bottombar>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)" 
-		:title="conversations[currentConversation].title"></Header>
+		:title="conversations[currentConversation]?.title"></Header>
 		<Sidebar :sidebarStatus="sidebarStatus" 
 		@closeSidebar="changeSidebarStatus(false)"
 		@chooseConversation="updateConversation"
 		:conversations="conversations"></Sidebar>
-		<Conversation :conversation="conversations[currentConversation].conversation"></Conversation>
+		<Conversation :conversation="conversations[currentConversation].manual"></Conversation>
 	</mdui-layout>
 </template>
 <style scoped>

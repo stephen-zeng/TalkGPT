@@ -26,10 +26,17 @@ def disconnect(sid):
 
 @sio.event
 def get_data(sid):
-    print("sending Data")
+    print("Client Require Data")
     queryset = Conversation.objects.all().order_by('time')
     serializer = ConversationSerializer(queryset, many=True)
     sio.emit('data_response', json.dumps(serializer.data), room=sid)
+
+def send_data():
+    print("Send data to all the Client")
+    queryset = Conversation.objects.all().order_by('time')
+    serializer = ConversationSerializer(queryset, many=True)
+    sio.emit('data_response', json.dumps(serializer.data))
+
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('127.0.0.1', 11111)), app)
