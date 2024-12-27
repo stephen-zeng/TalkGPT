@@ -2,7 +2,7 @@ from gevent import monkey
 monkey.patch_all()
 
 import gevent.pywsgi
-from geventwebsocket.handler import WebSocketHandler  # 注意这里
+from geventwebsocket.handler import WebSocketHandler
 import socketio
 import django
 import json
@@ -16,14 +16,12 @@ from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import dSignal
 
-# 使用 Gevent 异步模式
 sio = socketio.Server(
     cors_allowed_origins='*',
     async_mode='gevent'
 )
 app = socketio.WSGIApp(sio)
 
-# 定义 Socket.IO 事件
 @sio.event
 def connect(sid, environ):
     print("Client connected:", sid)
@@ -58,16 +56,14 @@ def send_data(_, **kwargs):
     sio.emit('data_response', json.dumps(serializer.data))
 
 
-# 连接信号
 dSignal.connect(send_data)
 
 print("Server is running...")
 
 if __name__ == '__main__':
-    # 配置 Gevent WSGI 服务器，使用 WebSocketHandler
     server = gevent.pywsgi.WSGIServer(
         ('127.0.0.1', 11111),
         app,
-        handler_class=WebSocketHandler  # 关键配置
+        handler_class=WebSocketHandler 
     )
     server.serve_forever()

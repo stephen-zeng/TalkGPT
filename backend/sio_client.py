@@ -1,13 +1,10 @@
 import socketio
-
-# 创建 Socket.IO 客户端
 sio = socketio.Client()
 
 @sio.event
 def connect():
     print('Connected to server')
-    sio.emit('get_data')  # 请求数据
-    # sio.emit('write_data')
+    sio.emit('get_data')
 
 @sio.event
 def disconnect():
@@ -19,8 +16,6 @@ def data_response(data):
     print(data)
 
 if __name__ == '__main__':
-    # 连接到 Socket.IO 服务器
     sio.connect('http://127.0.0.1:11111')
     sio.emit('write_data')
-    # 保持连接
     sio.wait()
