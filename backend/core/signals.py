@@ -1,24 +1,13 @@
-from django.db.models.signals import post_save, post_migrate, post_delete, post_init
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from core.models import Conversation, Manual, VAD
-from core.sio import send_data
+from blinker import signal
 
+dSignal = signal('modelChanged')
+
+@receiver(post_save, sender=VAD)
+@receiver(post_save, sender=Manual)
 @receiver(post_save, sender=Conversation)
 def model_save(**kwargs):
     print("Model Save")
-    send_data()
-
-@receiver(post_migrate, sender=Conversation)
-def model_save(**kwargs):
-    print("Model Save")
-    send_data()
-
-@receiver(post_delete, sender=Conversation)
-def model_save(**kwargs):
-    print("Model Save")
-    send_data()
-
-@receiver(post_init, sender=Conversation)
-def model_save(**kwargs):
-    print("Model Save")
-    send_data()
+    dSignal.send()
