@@ -15,6 +15,8 @@ django.setup()
 from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import dSignal
+from core.methods import addConversation, addText, addVoice
+from core.methods import delConversation, delTalking
 
 sio = socketio.Server(
     cors_allowed_origins='*',
@@ -37,23 +39,36 @@ def get_data(sid):
     serializer = ConversationSerializer(queryset, many=True)
     sio.emit('data_response', json.dumps(serializer.data), room=sid)
 
-@sio.event
-def write_data(sid):
-    print("Writing Data")
-    Conversation.objects.create(
-        title = "test",
-        vad_free = True,
-        vad_url = "aaaaaaa",
-        manual_free = False,
-        voice = "test",
-        instruction = "asdasdjlhhjlkashjlkdahljkas",    
-    )
-
 def send_data(_, **kwargs):
     print("Sending data to all clients")
     queryset = Conversation.objects.all().order_by('time')
     serializer = ConversationSerializer(queryset, many=True)
     sio.emit('data_response', json.dumps(serializer.data))
+
+@sio.event
+def newConversation(sid, data):
+    print(f"From {sid}, add a new Conversation")
+    addConversation(data)
+
+@sio.event
+def newText(sid, data):
+    print(f"From {sid}, a new text message")
+    addText(data)
+
+@sio.event
+def newVoice(sid, data):
+    print(f"From {sid}, a new voice message")
+    addVoice(data)
+
+@sio.event
+def deleteConversation(sid, data):
+    print(f'From {sid}, delete a conversation')
+    delConversation(data)
+
+@sio.event
+def deleteTalking(sid, data):
+    print(f"From {sid}, delete a talking")
+    delTalking(data)
 
 
 dSignal.connect(send_data)

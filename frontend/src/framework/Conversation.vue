@@ -7,9 +7,12 @@
 <template>
     <mdui-layout-main class="content">
         <Talking v-for="talking in props.conversation" 
-        :role="talking.role" 
-        :message="talking.message"></Talking>
+        :talking="talking"></Talking>
+        <div class="filling"></div>
 	</mdui-layout-main>
 </template>
 <style scope>
+.filling {
+    height: 4rem;
+}
 </style>

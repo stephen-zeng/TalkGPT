@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, defineProps, defineEmits, inject } from 'vue';
 
     const keyboardStatus = ref(false);
     const voiceStatus = ref(false);
@@ -7,9 +7,13 @@
     const vadIcon = ref('voice_over_off');
     const vadMessage = ref('');
     const content = ref('');
+    const prop = defineProps(['uuid']);
+    const emit = defineEmits(['del', 'vad'])
+    const socket = inject('socket');
 
     function openKeyboard() {
         content.value = '';
+        // console.log(prop.uuid);
         keyboardStatus.value = true;
     }
     function cancelKeyboard() {
@@ -17,6 +21,13 @@
         keyboardStatus.value = false;
     }
     function submitKeyboard() {
+        if (content.value) 
+            socket.emit('newText', 
+                {
+                    uuid: prop.uuid,
+                    message: content.value,
+                }
+            )
         cancelKeyboard();
     }
 
@@ -27,6 +38,12 @@
         voiceStatus.value = false;
     }
     function submitVoice() {
+        socket.emit('newVoice',
+            {
+                uuid: prop.uuid,
+                voice: "Should be a https link"
+            }
+        );
         cancelVoice();
     }
     
@@ -35,26 +52,38 @@
             vadIcon.value = 'standard';
             vadMessage.value = 'Stop VAD';
             voiceDisable.value = false;
+            emit('vad', false);
         } else { // 开始VAD
             vadIcon.value = 'filled';
             voiceDisable.value = true;
             vadMessage.value = 'Stop VAD';
+            emit('vad', true);
         }
+    }
+    function deleteConversation() {
+        socket.emit('deleteConversation',
+            {
+                uuid: prop.uuid
+            }
+        );
+        emit('del');
     }
 
 </script>
 <template>
     <div style="overflow: hidden;">
-        <mdui-bottom-app-bar style="justify-content: center;"
+        <mdui-bottom-app-bar style="justify-content: center;" :hide="uuid ? false : true"
         scroll-behavior="hide"
         scroll-threshold="30"
         scroll-target=".content">
-            <mdui-tooltip content="Type a message"><mdui-button-icon
+            <mdui-tooltip content="Type a message"><mdui-button-icon :disabled=voiceDisable
             icon="keyboard" @click="openKeyboard"></mdui-button-icon></mdui-tooltip>
             <mdui-tooltip content="Say a message"><mdui-button-icon :disabled=voiceDisable
             icon="mic" @click="openVoice"></mdui-button-icon></mdui-tooltip>
             <mdui-tooltip content="Talk with GPT"><mdui-button-icon :variant=vadIcon 
             icon='record_voice_over' @click="setVad"></mdui-button-icon></mdui-tooltip>
+            <mdui-tooltip content="Delete this conversation"><mdui-button-icon
+                icon="delete" @click="deleteConversation"></mdui-button-icon></mdui-tooltip>
         </mdui-bottom-app-bar>
     </div>
     <mdui-dialog :open=keyboardStatus id="keyboard" @close="cancelKeyboard"

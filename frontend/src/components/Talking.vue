@@ -1,15 +1,17 @@
 <script setup>
-    import { ref, onMounted } from 'vue';
-    const props = defineProps(['role', 'message']);
-    const text = ref("")
+    import { defineProps, inject } from 'vue';
+    const props = defineProps(['talking']);
+    const socket = inject('socket');
     
     function setRole(role) { // 1为GPT，0为用户
-        console.log(text.value);
+        // console.log(text.value);
         if (role) return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/openai.png";
         else return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/user.png";
     }
     function getRole(role) {
         // console.log(message);
+        // console.log(props.message);
+        // console.log(props.talking.voice);
         if (role) return "ChatGPT";
         else return "User";
     }
@@ -19,16 +21,46 @@
         if (role) return 'left';
         else return 'right';
     }
-    
+
+    function playAudio() {
+        console.log("play the audio");
+    }
+
+    function deleteTalking() {
+        // console.log(props.talking.time);
+        socket.emit('deleteTalking',
+            {
+                time: props.talking.time
+            }
+        )
+    }
+
+    function getTime() {
+        const isoString = props.talking.time;
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        const formattedTime = `${hours}:${minutes}:${seconds}`;
+        // console.log(`Date: ${formattedDate}`);
+        // console.log(`Time: ${formattedTime}`);
+        return formattedDate + ' ' + formattedTime;
+    }
     
 </script>
 <template>
-    <div class="talking" :style="{ 'text-align': setStyle(role) }">
-        <mdui-tooltip :content="getRole(role)" :placement="setStyle(!role)">
-            <mdui-avatar :src="setRole(role)"></mdui-avatar>
+    <div class="talking" :style="{ 'text-align': setStyle(talking.role) }">
+        <mdui-tooltip :content="getRole(talking.role)" :placement="setStyle(!talking.role)">
+            <mdui-avatar :src="setRole(talking.role)"></mdui-avatar>
         </mdui-tooltip>
-        <mdui-text-field variant="outlined" label="Date" :value="message" readonly>
-            <mdui-button-icon slot="end-icon" icon="play_circle"></mdui-button-icon>
+        <mdui-text-field variant="outlined" :label="getTime()" :value="talking.message" readonly autosize>
+            <mdui-button-icon slot="icon" icon="play_circle" 
+            v-show="talking.voice" @click="playAudio"></mdui-button-icon>
+            <mdui-button-icon slot="end-icon" icon="delete" @click="deleteTalking"></mdui-button-icon>
         </mdui-text-field>
     </div>
 </template>

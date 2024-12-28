@@ -3,22 +3,22 @@
 	import Sidebar from './framework/Sidebar.vue';
 	import Bottombar from './framework/Bottombar.vue';
 	import Conversation from './framework/Conversation.vue';
-	import { io } from 'socket.io-client'
-	import { ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
+	import { ref, onMounted, onBeforeUnmount, onBeforeMount, inject } from 'vue';
 
 	let monitorID;
 	const sidebarStatus = ref(false);
 	const currentConversation = ref(0);
 	const conversations = ref([]);
-	const socket = io('http://127.0.0.1:11111');
-	const role = ref(false); // 1为GPT，0为用户
+	const vad = ref(false);
+	const socket = inject('socket');
+	// const role = ref(false); // 1为GPT，0为用户
 
 	function changeSidebarStatus(way) {
 		// console.log(sidebarStatus.value)
 		// console.log(document.body.offsetWidth);
-		let i = currentConversation.value
-		let c = conversations.value
-		console.log(c);
+		// let i = currentConversation.value
+		// let c = conversations.value
+		// console.log(c);
 		if (way) {
 			if (sidebarStatus.value) sidebarStatus.value = false;
 			else sidebarStatus.value = true;
@@ -38,11 +38,17 @@
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
+	function changeVad(newMode) {
+		vad.value = newMode;
+	}
+	function deleteConversation() {
+		if (currentConversation.value != 0) currentConversation.value--;
+	}
 	function getSocket() {
-		console.log("Init WS");
+		// console.log("Init WS");
 		socket.on('connect',
 			()=> {
-				console.log("WS Connected");
+				// console.log("WS Connected");
 				socket.emit('get_data');
 			}
 		);
@@ -53,10 +59,8 @@
 		);
 		socket.on('data_response',
 			(data)=> {
-				console.log("Receiving Data");
+				// console.log("Receiving Data");
 				conversations.value = JSON.parse(data);
-				console.log(data);
-				// console.log(conversations.value);
 			}
 		)
 	}
@@ -64,7 +68,6 @@
 	onMounted(
 		()=> {
 			monitorID = setInterval(monitor, 100);
-			// clearInterval(monitorID);
 		}
 	);
 	onBeforeUnmount (
@@ -82,14 +85,16 @@
 </script>
 <template>
 	<mdui-layout full-height>
-		<Bottombar></Bottombar>
-		<Header @changeSidebarStatus="changeSidebarStatus(true)" 
+		<Bottombar :uuid="conversations[currentConversation]?.uuid"
+		@del="deleteConversation()" @vad="changeVad"></Bottombar>
+		<Header @changeSidebarStatus="changeSidebarStatus(true)"
+		@addConversation="currentConversation = conversations.length" 
 		:title="conversations[currentConversation]?.title"></Header>
 		<Sidebar :sidebarStatus="sidebarStatus" 
 		@closeSidebar="changeSidebarStatus(false)"
 		@chooseConversation="updateConversation"
 		:conversations="conversations"></Sidebar>
-		<Conversation :conversation="conversations[currentConversation].manual"></Conversation>
+		<Conversation :conversation="vad ? conversations[currentConversation]?.vad : conversations[currentConversation]?.manual" v-show="conversations[currentConversation]"></Conversation>
 	</mdui-layout>
 </template>
 <style scoped>

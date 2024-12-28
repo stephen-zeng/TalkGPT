@@ -4,16 +4,12 @@
     import Theme from '@/components/Theme.vue';
     import Settings from '@/components/Settings.vue';
     const props = defineProps(['title'])
-    const emit = defineEmits(['changeSidebarStatus'])
-
-    function changeSidebarStatus() {
-        emit('changeSidebarStatus')
-    }
+    const emit = defineEmits(['changeSidebarStatus', 'addConversation'])
 </script>
 <template>
-    <mdui-top-app-bar variant="center-aligned">
-        <mdui-button-icon icon="menu" @click="changeSidebarStatus"></mdui-button-icon>
-        <AddConversation></AddConversation>
+    <mdui-top-app-bar variant="center-aligned" scroll-target=".content">
+        <mdui-button-icon icon="menu" @click="emit('changeSidebarStatus')"></mdui-button-icon>
+        <AddConversation @add="emit('addConversation')"></AddConversation>
         <mdui-top-app-bar-title>{{ props.title }}</mdui-top-app-bar-title>
         <Theme></Theme>
         <Settings></Settings>

@@ -1,7 +1,6 @@
 <script setup>
     import { ref, onMounted } from 'vue';
     const status = ref(0);
-    
 
     function getThemeIcon() {
         if (status.value  == 0) return "hdr_auto";
