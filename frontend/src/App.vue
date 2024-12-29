@@ -11,6 +11,7 @@
 	const conversations = ref([]);
 	const vad = ref(false);
 	const socket = inject('socket');
+	const player = inject('player');
 	// const role = ref(false); // 1为GPT，0为用户
 
 	function changeSidebarStatus(way) {
@@ -68,11 +69,13 @@
 	onMounted(
 		()=> {
 			monitorID = setInterval(monitor, 100);
+			player.connect();
 		}
 	);
 	onBeforeUnmount (
 		()=> {
 			if (monitorID) clearInterval(monitorID);
+			player.interrupt();
 		}
 	);
 	onBeforeMount(

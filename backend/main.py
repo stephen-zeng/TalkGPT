@@ -3,6 +3,7 @@ monkey.patch_all()
 
 import gevent.pywsgi
 from geventwebsocket.handler import WebSocketHandler
+from multiprocessing import Process
 import socketio
 import django
 import json
@@ -17,6 +18,7 @@ from core.serializer import ConversationSerializer
 from core.signals import dSignal
 from core.methods import addConversation, addText, addVoice
 from core.methods import delConversation, delTalking
+from gpt import gptInit, gptStop
 
 sio = socketio.Server(
     cors_allowed_origins='*',
@@ -46,6 +48,26 @@ def send_data(_, **kwargs):
     sio.emit('data_response', json.dumps(serializer.data))
 
 @sio.event
+def setConfig(sid, data):
+    print(f"From {sid}, set the config")
+    print(data)
+    global api_key
+    global gpt_model
+    api_key = data['key']
+    gpt_model = data['model']
+
+@sio.event
+def startConversation(sid):
+    print(f"From {sid}, start the conversation")
+    gptStop()
+    gptInit(api_key, gpt_model)
+
+@sio.event
+def stopConversation(sid):
+    print(f"From {sid}, stop the conversation")
+    gptStop()
+
+@sio.event
 def newConversation(sid, data):
     print(f"From {sid}, add a new Conversation")
     addConversation(data)
@@ -64,6 +86,7 @@ def newVoice(sid, data):
 def deleteConversation(sid, data):
     print(f'From {sid}, delete a conversation')
     delConversation(data)
+    gptStop()
 
 @sio.event
 def deleteTalking(sid, data):
@@ -73,12 +96,17 @@ def deleteTalking(sid, data):
 
 dSignal.connect(send_data)
 
-print("Server is running...")
-
-if __name__ == '__main__':
+def init():
     server = gevent.pywsgi.WSGIServer(
         ('127.0.0.1', 11111),
         app,
         handler_class=WebSocketHandler 
     )
     server.serve_forever()
+
+
+if __name__ == '__main__':
+    main = Process(target=init)
+    main.start()
+    print("The Main Server is running")
+    main.join()

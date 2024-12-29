@@ -10,9 +10,11 @@
     const prop = defineProps(['uuid']);
     const emit = defineEmits(['del', 'vad'])
     const socket = inject('socket');
+    const recorder = inject('recorder');
 
     function openKeyboard() {
         content.value = '';
+        socket.emit('startConversation');
         // console.log(prop.uuid);
         keyboardStatus.value = true;
     }
@@ -32,10 +34,14 @@
     }
 
     function openVoice() {
+        socket.emit('startConversation');
         voiceStatus.value = true;
+        recorder.begin();
+        recorder.record((data)=>(socket.emit('audioBuff', data.mono)));
     }
     function cancelVoice() {
         voiceStatus.value = false;
+        recorder.end();
     }
     function submitVoice() {
         socket.emit('newVoice',
@@ -95,8 +101,9 @@
     </mdui-dialog>
     <mdui-dialog :open=voiceStatus id="voice" close-on-esc close-on-overlay-click
     icon="mic" headline="Say a message" description="60s Max" @close="cancelVoice">
-        <h1 id="timer">30s</h1>
-        <mdui-linear-progress value="0.5"></mdui-linear-progress>
+        <h1 id="timer">Recording</h1>
+        <!-- <mdui-linear-progress value="0.5"></mdui-linear-progress> -->
+        <mdui-linear-progress></mdui-linear-progress>
         <mdui-button slot="action" variant="outlined" @click="cancelVoice">Cancel</mdui-button>
         <mdui-button slot="action" @click="submitVoice">Send</mdui-button>
     </mdui-dialog>
