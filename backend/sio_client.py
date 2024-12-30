@@ -15,7 +15,7 @@ def data_response(data):
     print('Received data:')
     print(data)
 
-if __name__ == '__main__':
-    sio.connect('http://127.0.0.1:11111')
-    sio.emit('write_data')
+def init(port):
+    sio.connect('http://127.0.0.1:' + port)
+    print(f"Connect to port {port}")
     sio.wait()

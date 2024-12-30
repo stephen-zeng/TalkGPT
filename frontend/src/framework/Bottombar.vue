@@ -14,7 +14,6 @@
 
     function openKeyboard() {
         content.value = '';
-        socket.emit('startConversation');
         // console.log(prop.uuid);
         keyboardStatus.value = true;
     }
@@ -34,7 +33,6 @@
     }
 
     function openVoice() {
-        socket.emit('startConversation');
         voiceStatus.value = true;
         recorder.begin();
         recorder.record((data)=>(socket.emit('audioBuff', data.mono)));

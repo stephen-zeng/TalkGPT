@@ -1,24 +1,23 @@
 from gevent import monkey
 monkey.patch_all()
 
-import gevent.pywsgi
-from geventwebsocket.handler import WebSocketHandler
-from multiprocessing import Process
-import socketio
 import django
-import json
 import os
-
-# 设置 Django 环境
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'talkgpt.settings')
 django.setup()
 
+from geventwebsocket.handler import WebSocketHandler
+import threading
 from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import dSignal
 from core.methods import addConversation, addText, addVoice
 from core.methods import delConversation, delTalking
-from gpt import gptInit, gptStop
+from gpt import gptStart, gptStop, gptInit
+import gevent.pywsgi
+import socketio
+import django
+import json
 
 sio = socketio.Server(
     cors_allowed_origins='*',
@@ -33,6 +32,7 @@ def connect(sid, environ):
 @sio.event
 def disconnect(sid):
     print("Client disconnected:", sid)
+    gptStop()
 
 @sio.event
 def get_data(sid):
@@ -55,12 +55,14 @@ def setConfig(sid, data):
     global gpt_model
     api_key = data['key']
     gpt_model = data['model']
+    gptInit(api_key, gpt_model)
 
 @sio.event
 def startConversation(sid):
     print(f"From {sid}, start the conversation")
-    gptStop()
-    gptInit(api_key, gpt_model)
+    gptStart()
+    print("fuck here")
+    
 
 @sio.event
 def stopConversation(sid):
@@ -96,9 +98,10 @@ def deleteTalking(sid, data):
 
 dSignal.connect(send_data)
 
-def init():
+def init(port):
+    print(f"The server from port {port} is up and running.")
     server = gevent.pywsgi.WSGIServer(
-        ('127.0.0.1', 11111),
+        ('127.0.0.1', port),
         app,
         handler_class=WebSocketHandler 
     )
@@ -106,7 +109,6 @@ def init():
 
 
 if __name__ == '__main__':
-    main = Process(target=init)
+    main = threading.Thread(target=init, args=(11111,))
     main.start()
-    print("The Main Server is running")
     main.join()

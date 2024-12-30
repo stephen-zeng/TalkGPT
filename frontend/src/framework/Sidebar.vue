@@ -5,7 +5,7 @@
     const socket = inject('socket');
     function chooseConversation(index) {
         emit('chooseConversation', index);
-        socket.emit('stopConversation')
+        socket.emit('startConversation');
     }
 </script>
 <template> 

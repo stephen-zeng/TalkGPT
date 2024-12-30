@@ -28,6 +28,7 @@
                 voice: voice.value,
             }
         )
+        socket.emit('startConversation');
         emit('add');
         cancelDialog();
     }
