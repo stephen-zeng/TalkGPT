@@ -52,12 +52,11 @@
 			()=> {
 				// console.log("WS Connected");
 				socket.emit('model', 'data', 0);
-				// socket.emit('openai', 'setConfig',
-				// 	{
-				// 		key: "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",
-				// 		model: "gpt-4o-mini-realtime-preview-2024-12-17"
-				// 	}
-				// )
+				socket.emit('openai', 'setConfig',
+					{
+						key: "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",
+					}
+				)
 			}
 		);
 		socket.on('disconnect',

@@ -7,36 +7,25 @@ class Conversation(models.Model):
                             default=uuid.uuid4,
                             editable=False,
                             unique=True)
-    vad_free = models.BooleanField(default=True)
-    vad_url = models.TextField(null=True)
-    manual_free = models.BooleanField(default=True)
+    time = models.DateTimeField(auto_now=True)
+    model = models.TextField(null=True)
     voice = models.CharField(max_length=7)
+    temperature = models.DecimalField(max_digits=2, 
+                                      decimal_places=1,
+                                      null=True) # 0.6~1.2
     instruction = models.TextField(null=True)
-    time = models.DateTimeField(auto_now=True)
+    vad = models.BooleanField(default=False)
 
-class Manual(models.Model):
+class Memory(models.Model):
     conversation = models.ForeignKey("Conversation",
                                      on_delete=models.CASCADE,
-                                     related_name="manual",
+                                     related_name="memory",
                                      null=True)
     role = models.BooleanField(default=False)
     message = models.TextField(null=True)
-    voice = models.TextField(null=True)
+    voice = models.TextField(null=True) # This is the voice wav link
     time = models.DateTimeField(auto_now=True)
-    uuid = models.UUIDField(primary_key=True,
-                            default=uuid.uuid4,
-                            editable=False,
-                            unique=True)
-
-class VAD(models.Model):
-    conversation = models.ForeignKey("Conversation",
-                                     on_delete=models.CASCADE,
-                                     related_name="vad",
-                                     null=True)
-    role = models.BooleanField(default=False)
-    message = models.TextField(null=True)
-    voice = models.TextField(null=True)
-    time = models.DateTimeField(auto_now=True)
+    serverID = models.TextField(null=True)
     uuid = models.UUIDField(primary_key=True,
                             default=uuid.uuid4,
                             editable=False,

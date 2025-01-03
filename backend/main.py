@@ -11,9 +11,11 @@ import threading
 from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import modelSignal
-from core.methods import addConversation, addText, addVoice
-from core.methods import delConversation, delTalking
+from core.methods import newConversation, editConversation, delConversation
+from core.methods import newMemory, delMemory
 from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
+from gpt import gptNewConversation, gptEditConversation
+from gpt import gptNewMemory, gptDelMemory
 import gevent.pywsgi
 import socketio
 import django
@@ -38,7 +40,7 @@ def disconnect(sid):
 
 @modelSignal.connect
 @sio.event
-def model(sid, operation, data):
+def model(sid, operation, data, **kargs):
     match operation:
         case 'data':
             print("Sending data")
@@ -50,19 +52,22 @@ def model(sid, operation, data):
                  sio.emit('data_response', json.dumps(serializer.data), room=sid)
         case 'newConversation':
             print(f"From {sid}, add a new Conversation")
-            addConversation(data)
-        case 'newText':
-            print(f"From {sid}, a new text message")
-            addText(data)
-        case 'newVoice':
-            print(f"From {sid}, a new voice message")
-            addVoice(data)
-        case 'deleteConversation':
+            gptNewConversation(data, newConversation(data))
+        case 'editConversation':
+            print(f"From {sid}, edit a new Conversation")
+            editConversation(data)
+            gptEditConversation(data)
+        case 'delConversation':
             print(f'From {sid}, delete a conversation')
             delConversation(data)
-        case 'deleteTalking':
+        case 'newMemory':
+            print(f"From {sid}, a new message")
+            newMemory(data)
+            gptNewMemory(data, typ=typ, audio=audio)
+        case 'delMemory':
             print(f"From {sid}, delete a talking")
-            delTalking(data)
+            delMemory(data)
+            gptDelMemory(data)
         case _:
             print(f"From {sid}, receive an unknown operation")
 
@@ -74,10 +79,8 @@ def openai(sid, operation, data):
             print(f"From {sid}, set the config")
             print(data)
             global api_key
-            global gpt_model
             api_key = data['key']
-            gpt_model = data['model']
-            gptInit(key=api_key, model=gpt_model)
+            gptInit(key=api_key)
         case 'connect':
             if api_key == 'None':
                 sio.emit('openai_response', 'unConfigured')

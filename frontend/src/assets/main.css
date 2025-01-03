@@ -19,11 +19,10 @@ html, body, #app  {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-mdui-dialog mdui-text-field {
+mdui-dialog mdui-text-field, mdui-slider{
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
-
 /* @media (min-width: 625px) {
     mdui-dialog mdui-text-field {
         width: 30rem;

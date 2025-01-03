@@ -26,11 +26,11 @@
         console.log("play the audio");
     }
 
-    function deleteTalking() {
+    function deleteMemory() {
         // console.log(props.talking.time);
-        socket.emit('model', 'deleteTalking',
+        socket.emit('model', 'delMemory',
             {
-                time: props.talking.time
+                time: props.talking.uuid
             }
         )
     }
@@ -60,7 +60,7 @@
         <mdui-text-field variant="outlined" :label="getTime()" :value="talking.message" readonly autosize>
             <mdui-button-icon slot="icon" icon="play_circle" 
             v-show="talking.voice" @click="playAudio"></mdui-button-icon>
-            <mdui-button-icon slot="end-icon" icon="delete" @click="deleteTalking"></mdui-button-icon>
+            <mdui-button-icon slot="end-icon" icon="delete" @click="deleteMemory"></mdui-button-icon>
         </mdui-text-field>
     </div>
 </template>
