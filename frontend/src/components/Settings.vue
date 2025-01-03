@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, inject } from 'vue';
+    import { ref, inject, onMounted } from 'vue';
     const dialogStatus = ref(false);
     const key = ref('');
     const model = ref('gpt-4o-mini-realtime-preview-2024-12-17');
@@ -18,7 +18,7 @@
     function submit() {
         console.log(key.value)
         console.log(model.value)
-        socket.emit('setConfig',
+        socket.emit('openai', 'setConfig',
             {
                 key: key.value,
                 model: model.value
@@ -31,6 +31,17 @@
         model.value = newModel;
         modelBtn.value = 'Model: ' + model.value;
     }
+
+    onMounted(
+        ()=>{
+            socket.on('openai_response',
+                (data)=>{
+                    if (data=='unConfigured')
+                    dialogStatus.value = true;
+                }
+            )
+        }
+    )
 </script>
 <template>
     <mdui-dialog :open=dialogStatus @overlay-click="cancelDialog()"

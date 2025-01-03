@@ -1,33 +1,39 @@
-from concurrent.futures import ThreadPoolExecutor
+from blinker import Signal
 import os
 import json
 import websocket
 import threading
 import time
 
+gptSignal = Signal('gptSignal')
+
 def on_open(ws):
     print("Connected to OpenAI")
+    gptSignal.send(0, operation='connected', data=0)
 
 def on_message(ws, data):
     print("Receive data from OpenAI")
     print(data)
 
-with ThreadPoolExecutor(max_workers=2) as executor:
-    def start():
-        ws.run_forever()
-    def gptStop():
-        print("Try to close connection to the OpenAI")
-        try:
-            ws.close()
-            print("Closed")
-        except:
-            print("The connection isn't alive")
-    def gptStart():
-        gptStop()
-        print("Establishing the connection to OpenAI")
-        executor.submit(start)
+def connect():
+    ws.keep_running = True
+    ws.run_forever()
 
-    
+def gptConnect():
+    global server
+    server = threading.Thread(target=connect)
+    server.start()
+
+def gptDisconnect():
+    if ('server' not in globals()):
+        return
+    if (server.is_alive() == False):
+        return
+    ws.keep_running = False
+    ws.close()
+    server.join()
+    print('Disconnect from OpenAI')
+    gptSignal.send(0, operation='disconnected', data=0)
 
 def gptInit(key, model):
     global ws
@@ -42,5 +48,3 @@ def gptInit(key, model):
         on_open=on_open,
         on_message=on_message,
     )
-    global server
-    server = threading.Thread(target=start)

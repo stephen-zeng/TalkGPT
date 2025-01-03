@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from core.models import Conversation, Manual, VAD
 from blinker import signal
 
-dSignal = signal('modelChanged')
+modelSignal = signal('modelSignal')
 
 @receiver(post_save, sender=VAD)
 @receiver(post_save, sender=Manual)
@@ -13,4 +13,4 @@ dSignal = signal('modelChanged')
 @receiver(post_delete, sender=Conversation)
 def model_save(**kwargs):
     print("Model Changed")
-    dSignal.send()
+    modelSignal.send(0, operation='data', data=0)

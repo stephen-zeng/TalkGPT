@@ -1,9 +1,9 @@
 <script setup>
-    import { ref, defineProps, defineEmits, inject } from 'vue';
+    import { ref, defineProps, defineEmits, inject, onMounted } from 'vue';
 
     const keyboardStatus = ref(false);
     const voiceStatus = ref(false);
-    const voiceDisable = ref(false);
+    const vadEnabled = ref(false);
     const vadIcon = ref('voice_over_off');
     const vadMessage = ref('');
     const content = ref('');
@@ -11,6 +11,8 @@
     const emit = defineEmits(['del', 'vad'])
     const socket = inject('socket');
     const recorder = inject('recorder');
+    const connecting = ref(false);
+    const disconnected = ref(true);
 
     function openKeyboard() {
         content.value = '';
@@ -23,7 +25,7 @@
     }
     function submitKeyboard() {
         if (content.value) 
-            socket.emit('newText', 
+            socket.emit('model', 'newText', 
                 {
                     uuid: prop.uuid,
                     message: content.value,
@@ -42,7 +44,7 @@
         recorder.end();
     }
     function submitVoice() {
-        socket.emit('newVoice',
+        socket.emit('model', 'newVoice',
             {
                 uuid: prop.uuid,
                 voice: "Should be a https link"
@@ -55,23 +57,55 @@
         if (vadIcon.value == 'filled') { // 停止VAD
             vadIcon.value = 'standard';
             vadMessage.value = 'Stop VAD';
-            voiceDisable.value = false;
+            vadEnabled.value = false;
             emit('vad', false);
         } else { // 开始VAD
             vadIcon.value = 'filled';
-            voiceDisable.value = true;
+            vadEnabled.value = true;
             vadMessage.value = 'Stop VAD';
             emit('vad', true);
         }
     }
     function deleteConversation() {
-        socket.emit('deleteConversation',
+        socket.emit('model', 'deleteConversation',
             {
                 uuid: prop.uuid
             }
         );
+        socket.emit('openai', 'disconnect', 0);
         emit('del');
     }
+    function connect(operation) {
+        if (operation == 'icon') {
+            if (disconnected.value) return "play_arrow";
+            else return "stop";
+        } else if (operation == 'btn') {
+            connecting.value = true;
+            if (disconnected.value) {
+                socket.emit('openai', 'connect', 0);
+            } else {
+                socket.emit('openai', 'disconnect', 0);
+            }
+        }
+    }
+
+    onMounted(
+        ()=>{
+            socket.on('openai_response', 
+                (data)=>{
+                    if (data=='connected') {
+                        connecting.value = false;
+                        disconnected.value = false;
+                    } else if (data=='disconnected') {
+                        connecting.value = false;
+                        disconnected.value = true;
+                    } else if (data=='unConfigured') {
+                        connecting.value = false;
+                    }
+                }
+            )
+        }
+    )
 
 </script>
 <template>
@@ -80,11 +114,13 @@
         scroll-behavior="hide"
         scroll-threshold="30"
         scroll-target=".content">
-            <mdui-tooltip content="Type a message"><mdui-button-icon :disabled=voiceDisable
+            <mdui-tooltip content="Connect to OpenAI"><mdui-button-icon :disabled=connecting
+            :icon="connect('icon')" @click="connect('btn')"></mdui-button-icon></mdui-tooltip>
+            <mdui-tooltip content="Type a message"><mdui-button-icon :disabled="vadEnabled | disconnected"
             icon="keyboard" @click="openKeyboard"></mdui-button-icon></mdui-tooltip>
-            <mdui-tooltip content="Say a message"><mdui-button-icon :disabled=voiceDisable
+            <mdui-tooltip content="Say a message"><mdui-button-icon :disabled="vadEnabled | disconnected"
             icon="mic" @click="openVoice"></mdui-button-icon></mdui-tooltip>
-            <mdui-tooltip content="Talk with GPT"><mdui-button-icon :variant=vadIcon 
+            <mdui-tooltip content="Talk with GPT"><mdui-button-icon :variant="vadIcon" :disabled="disconnected"
             icon='record_voice_over' @click="setVad"></mdui-button-icon></mdui-tooltip>
             <mdui-tooltip content="Delete this conversation"><mdui-button-icon
                 icon="delete" @click="deleteConversation"></mdui-button-icon></mdui-tooltip>

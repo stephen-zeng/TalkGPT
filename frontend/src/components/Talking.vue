@@ -28,7 +28,7 @@
 
     function deleteTalking() {
         // console.log(props.talking.time);
-        socket.emit('deleteTalking',
+        socket.emit('model', 'deleteTalking',
             {
                 time: props.talking.time
             }

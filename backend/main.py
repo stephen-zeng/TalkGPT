@@ -10,10 +10,10 @@ from geventwebsocket.handler import WebSocketHandler
 import threading
 from core.models import Conversation
 from core.serializer import ConversationSerializer
-from core.signals import dSignal
+from core.signals import modelSignal
 from core.methods import addConversation, addText, addVoice
 from core.methods import delConversation, delTalking
-from gpt import gptStart, gptStop, gptInit
+from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
 import gevent.pywsgi
 import socketio
 import django
@@ -24,79 +24,72 @@ sio = socketio.Server(
     async_mode='gevent'
 )
 app = socketio.WSGIApp(sio)
+api_key = 'None'
+gpt_model = 'None'
 
 @sio.event
-def connect(sid, environ):
+def connect(sid, _):
     print("Client connected:", sid)
 
 @sio.event
 def disconnect(sid):
     print("Client disconnected:", sid)
-    gptStop()
+    gptDisconnect()
 
+@modelSignal.connect
 @sio.event
-def get_data(sid):
-    print("Client requested data")
-    queryset = Conversation.objects.all().order_by('time')
-    serializer = ConversationSerializer(queryset, many=True)
-    sio.emit('data_response', json.dumps(serializer.data), room=sid)
+def model(sid, operation, data):
+    match operation:
+        case 'data':
+            print("Sending data")
+            queryset = Conversation.objects.all().order_by('time')
+            serializer = ConversationSerializer(queryset, many=True)
+            if sid == 0:
+                sio.emit('data_response', json.dumps(serializer.data))
+            else:
+                 sio.emit('data_response', json.dumps(serializer.data), room=sid)
+        case 'newConversation':
+            print(f"From {sid}, add a new Conversation")
+            addConversation(data)
+        case 'newText':
+            print(f"From {sid}, a new text message")
+            addText(data)
+        case 'newVoice':
+            print(f"From {sid}, a new voice message")
+            addVoice(data)
+        case 'deleteConversation':
+            print(f'From {sid}, delete a conversation')
+            delConversation(data)
+        case 'deleteTalking':
+            print(f"From {sid}, delete a talking")
+            delTalking(data)
+        case _:
+            print(f"From {sid}, receive an unknown operation")
 
-def send_data(_, **kwargs):
-    print("Sending data to all clients")
-    queryset = Conversation.objects.all().order_by('time')
-    serializer = ConversationSerializer(queryset, many=True)
-    sio.emit('data_response', json.dumps(serializer.data))
-
+@gptSignal.connect
 @sio.event
-def setConfig(sid, data):
-    print(f"From {sid}, set the config")
-    print(data)
-    global api_key
-    global gpt_model
-    api_key = data['key']
-    gpt_model = data['model']
-    gptInit(api_key, gpt_model)
-
-@sio.event
-def startConversation(sid):
-    print(f"From {sid}, start the conversation")
-    gptStart()
-    print("fuck here")
-    
-
-@sio.event
-def stopConversation(sid):
-    print(f"From {sid}, stop the conversation")
-    gptStop()
-
-@sio.event
-def newConversation(sid, data):
-    print(f"From {sid}, add a new Conversation")
-    addConversation(data)
-
-@sio.event
-def newText(sid, data):
-    print(f"From {sid}, a new text message")
-    addText(data)
-
-@sio.event
-def newVoice(sid, data):
-    print(f"From {sid}, a new voice message")
-    addVoice(data)
-
-@sio.event
-def deleteConversation(sid, data):
-    print(f'From {sid}, delete a conversation')
-    delConversation(data)
-    gptStop()
-
-@sio.event
-def deleteTalking(sid, data):
-    print(f"From {sid}, delete a talking")
-    delTalking(data)
-
-
-dSignal.connect(send_data)
+def openai(sid, operation, data):
+    match operation:
+        case 'setConfig':
+            print(f"From {sid}, set the config")
+            print(data)
+            global api_key
+            global gpt_model
+            api_key = data['key']
+            gpt_model = data['model']
+            gptInit(key=api_key, model=gpt_model)
+        case 'connect':
+            if api_key == 'None':
+                sio.emit('openai_response', 'unConfigured')
+                return
+            gptConnect()
+        case 'disconnect':
+            gptDisconnect()
+        case 'connected':
+            sio.emit('openai_response', 'connected')
+        case 'disconnected':
+            sio.emit('openai_response', 'disconnected')
+            
 
 def init(port):
     print(f"The server from port {port} is up and running.")
@@ -112,3 +105,4 @@ if __name__ == '__main__':
     main = threading.Thread(target=init, args=(11111,))
     main.start()
     main.join()
+    gptDisconnect()
