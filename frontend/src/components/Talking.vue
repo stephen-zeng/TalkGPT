@@ -9,28 +9,20 @@
         else return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/user.png";
     }
     function getRole(role) {
-        // console.log(message);
-        // console.log(props.message);
-        // console.log(props.talking.voice);
         if (role) return "ChatGPT";
         else return "User";
     }
-
     function setStyle(role) {
-        // console.log(vid);
         if (role) return 'left';
         else return 'right';
     }
-
     function playAudio() {
         console.log("play the audio");
     }
-
     function deleteMemory() {
-        // console.log(props.talking.time);
         socket.emit('model', 'delMemory',
             {
-                time: props.talking.uuid
+                uuid: props.talking.uuid
             }
         )
     }
@@ -46,8 +38,6 @@
         const seconds = String(date.getSeconds()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
         const formattedTime = `${hours}:${minutes}:${seconds}`;
-        // console.log(`Date: ${formattedDate}`);
-        // console.log(`Time: ${formattedTime}`);
         return formattedDate + ' ' + formattedTime;
     }
     
@@ -67,8 +57,6 @@
 <style scope>
 .talking {
     margin: 1rem;
-    /* display: flex; */
-    /* align-items: flex-end; */
 }
 mdui-card {
     margin-left: 1rem;

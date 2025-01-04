@@ -13,7 +13,7 @@
         dialogStatus.value = false;
     }
     function submit() {
-        console.log(key.value)
+        // console.log(key.value)
         if (key.value) socket.emit('openai', 'setConfig',
             {
                 key: key.value

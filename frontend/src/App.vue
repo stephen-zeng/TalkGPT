@@ -11,7 +11,6 @@
 	const conversations = ref([]);
 	const vad = ref(false);
 	const socket = inject('socket');
-	const player = inject('player');
 	// const role = ref(false); // 1为GPT，0为用户
 
 	function changeSidebarStatus(way) {
@@ -44,13 +43,14 @@
 		vad.value = newMode;
 	}
 	function deleteConversation() {
+		// console.log("delete signal from root app")
 		if (currentConversation.value != 0) currentConversation.value--;
 	}
 	function getSocket() {
 		// console.log("Init WS");
 		socket.on('connect',
 			()=> {
-				// console.log("WS Connected");
+				console.log("WS Connected");
 				socket.emit('model', 'data', 0);
 				socket.emit('openai', 'setConfig',
 					{
@@ -68,6 +68,7 @@
 			(data)=> {
 				// console.log("Receiving Data");
 				conversations.value = JSON.parse(data);
+				console.log(conversations.value);
 			}
 		)
 	}
@@ -75,7 +76,6 @@
 	onMounted(
 		()=> {
 			monitorID = setInterval(monitor, 100);
-			player.connect();
 		}
 	);
 	onBeforeUnmount (
@@ -96,16 +96,17 @@
 </script>
 <template>
 	<mdui-layout full-height>
-		<Bottombar :uuid="conversations[currentConversation]?.uuid"
-		@del="deleteConversation()" @vad="changeVad"></Bottombar>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)"
 		@addConversation="currentConversation = conversations.length" 
 		:title="conversations[currentConversation]?.title"></Header>
+		<Bottombar :uuid="conversations[currentConversation]?.uuid"
+		:index="currentConversation"
+		@del="deleteConversation()" @vad="changeVad"></Bottombar>
 		<Sidebar :sidebarStatus="sidebarStatus" 
 		@closeSidebar="changeSidebarStatus(false)"
 		@chooseConversation="updateConversation"
 		:conversations="conversations"></Sidebar>
-		<Conversation :conversation="vad ? conversations[currentConversation]?.vad : conversations[currentConversation]?.manual" v-show="conversations[currentConversation]"></Conversation>
+		<Conversation :memory="conversations[currentConversation]?.memory"></Conversation>
 	</mdui-layout>
 </template>
 <style scoped>

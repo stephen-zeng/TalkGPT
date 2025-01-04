@@ -1,5 +1,5 @@
 <script setup>
-    import { defineEmits, defineProps, ref } from 'vue';
+    import { defineEmits, defineProps } from 'vue';
     import AddConversation from '@/components/AddConversation.vue';
     import Theme from '@/components/Theme.vue';
     import Settings from '@/components/Settings.vue';
@@ -7,9 +7,14 @@
     const emit = defineEmits(['changeSidebarStatus', 'addConversation'])
 </script>
 <template>
-    <mdui-top-app-bar variant="center-aligned" scroll-target=".content">
-        <mdui-button-icon icon="menu" @click="emit('changeSidebarStatus')"></mdui-button-icon>
-        <AddConversation @add="emit('addConversation')"></AddConversation>
+    <mdui-top-app-bar 
+    variant="center-aligned" 
+    scroll-target=".conversation">
+        <mdui-button-icon 
+        icon="menu" 
+        @click="emit('changeSidebarStatus')"></mdui-button-icon>
+        <AddConversation 
+        @add="emit('addConversation')"></AddConversation>
         <mdui-top-app-bar-title>{{ props.title }}</mdui-top-app-bar-title>
         <Theme></Theme>
         <Settings></Settings>

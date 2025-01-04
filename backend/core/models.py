@@ -10,9 +10,7 @@ class Conversation(models.Model):
     time = models.DateTimeField(auto_now=True)
     model = models.TextField(null=True)
     voice = models.CharField(max_length=7)
-    temperature = models.DecimalField(max_digits=2, 
-                                      decimal_places=1,
-                                      null=True) # 0.6~1.2
+    temperature = models.FloatField(null=True) # 0.6~1.2
     instruction = models.TextField(null=True)
     vad = models.BooleanField(default=False)
 

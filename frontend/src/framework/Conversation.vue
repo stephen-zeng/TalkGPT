@@ -1,12 +1,12 @@
 <script setup>
     import Talking from '@/components/Talking.vue';
-    import { ref, defineProps } from 'vue';
-    const props = defineProps(['conversation']);
+    import { defineProps } from 'vue';
+    const props = defineProps(['memory']);
 
 </script>
 <template>
-    <mdui-layout-main class="content">
-        <Talking v-for="talking in props.conversation" 
+    <mdui-layout-main class="conversation">
+        <Talking v-for="talking in props.memory" 
         :talking="talking"></Talking>
         <div class="filling"></div>
 	</mdui-layout-main>

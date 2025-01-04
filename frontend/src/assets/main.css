@@ -1,5 +1,5 @@
 html, body, #app  {
-    margin: 0 !important;
+    margin: 0;
     height: 100%;
     font-family:
     Inter,
@@ -19,7 +19,7 @@ html, body, #app  {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-mdui-dialog mdui-text-field, mdui-slider{
+mdui-dialog mdui-text-field{
     margin-top: 1rem;
     margin-bottom: 1rem;
 }

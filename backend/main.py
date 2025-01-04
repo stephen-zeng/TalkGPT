@@ -11,11 +11,11 @@ import threading
 from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import modelSignal
-from core.methods import newConversation, editConversation, delConversation
-from core.methods import newMemory, delMemory
+# from core.methods import modelNewConversation, modelEditConversation, modelDelConversation
+# from core.methods import modelNewMemory, modelDelMemory
 from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
-from gpt import gptNewConversation, gptEditConversation
-from gpt import gptNewMemory, gptDelMemory
+# from gpt import gptNewConversation, gptEditConversation
+# from gpt import gptNewMemory, gptDelMemory
 import gevent.pywsgi
 import socketio
 import django
@@ -40,7 +40,7 @@ def disconnect(sid):
 
 @modelSignal.connect
 @sio.event
-def model(sid, operation, data, **kargs):
+def model(sid, operation, data):
     match operation:
         case 'data':
             print("Sending data")
@@ -51,23 +51,15 @@ def model(sid, operation, data, **kargs):
             else:
                  sio.emit('data_response', json.dumps(serializer.data), room=sid)
         case 'newConversation':
-            print(f"From {sid}, add a new Conversation")
-            gptNewConversation(data, newConversation(data))
-        case 'editConversation':
-            print(f"From {sid}, edit a new Conversation")
-            editConversation(data)
-            gptEditConversation(data)
+            
         case 'delConversation':
-            print(f'From {sid}, delete a conversation')
-            delConversation(data)
-        case 'newMemory':
-            print(f"From {sid}, a new message")
-            newMemory(data)
-            gptNewMemory(data, typ=typ, audio=audio)
+            
+        case 'editConversation':
+            
+        case 'newMemoryText':
+
         case 'delMemory':
-            print(f"From {sid}, delete a talking")
-            delMemory(data)
-            gptDelMemory(data)
+            
         case _:
             print(f"From {sid}, receive an unknown operation")
 
