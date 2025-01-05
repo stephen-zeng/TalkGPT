@@ -23,7 +23,7 @@ class Memory(models.Model):
     message = models.TextField(null=True)
     voice = models.TextField(null=True) # This is the voice wav link
     time = models.DateTimeField(auto_now=True)
-    serverID = models.TextField(null=True)
+    serverid = models.TextField(null=True)
     uuid = models.UUIDField(primary_key=True,
                             default=uuid.uuid4,
                             editable=False,

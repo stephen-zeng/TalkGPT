@@ -22,10 +22,9 @@
             {
                 role: false,
                 uuid: prop.uuid,
-                message: "Should from Whisper",
-                voice: "Should be a https link",
-                type: 'audio', //g711_alaw, base64
-                audio: audioData,
+                message: 'Waiting for transcription',
+                voice: 'None',
+                serverid: 'None',
             }
         );
         cancelDialog();

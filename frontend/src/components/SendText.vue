@@ -16,12 +16,13 @@
     }
     function submit() {
         if (content.value == '') return
-        socket.emit('model', 'newMemoryText',
+        socket.emit('model', 'newMemory',
             {
                 role: false,
                 uuid: prop.uuid,
                 message: content.value,
-                voice: "should be a https link",
+                voice: 'None',
+                serverid: 'None'
             }
         )
         cancelDialog();
