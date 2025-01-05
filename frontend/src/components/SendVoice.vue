@@ -1,33 +1,29 @@
 <script setup>
-    import { ref, defineProps,inject } from 'vue';
+    import { ref, defineProps, inject, defineEmits } from 'vue';
     import { Recorder } from '@/audio/recorder';
     
     const socket = inject('socket');
     const prop = defineProps(['disable', 'uuid']);
+    const emit = defineEmits(['sent']);
     const dialogStatus = ref(false);
-    const recorder = new Recorder();
+    const recorder = new Recorder(socket);
     let audioData;
     
     async function openDialog() {
         dialogStatus.value = true;
+        socket.emit('openai', 'newVoice', 0)
         await recorder.start();
     }
     async function cancelDialog() {
         dialogStatus.value = false;
-        audioData = await recorder.stop();
-        console.log('Base64 Encoded Audio:', audioData); // 在这里输出 Base64 编码
+        await recorder.stop();
+        socket.emit('openai', 'cancelVoice', 0)
     }
-    function submit() {
-        socket.emit('model', 'newMemory',
-            {
-                role: false,
-                uuid: prop.uuid,
-                message: 'Waiting for transcription',
-                voice: 'None',
-                serverid: 'None',
-            }
-        );
-        cancelDialog();
+    async function submit() {
+        dialogStatus.value = false;
+        emit('sent');
+        await recorder.stop();
+        socket.emit('openai', 'sendVoice', 0)
     }
 </script>
 <template>
@@ -43,7 +39,7 @@
         <mdui-button slot="action" @click="submit">Send</mdui-button>
     </mdui-dialog>
     <mdui-button-icon 
-    :disabled="false"
+    :disabled="disable"
     icon="mic" 
     @click="openDialog"></mdui-button-icon>
 </template>

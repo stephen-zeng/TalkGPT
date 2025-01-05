@@ -10,6 +10,7 @@
     const socket = inject('socket');
     const connecting = ref(false);
     const disconnected = ref(true);
+    const processing = ref(false);
 
     function connect(operation) {
         // console.log(prop.uuid)
@@ -38,6 +39,8 @@
                         disconnected.value = true;
                     } else if (data=='unConfigured') {
                         connecting.value = false;
+                    } else if (data=='replied') {
+                        processing.value = false;
                     }
                 }
             )
@@ -54,19 +57,21 @@
         scroll-target=".conversation">
             <mdui-tooltip content="Connect to OpenAI">
                 <mdui-button-icon 
-                :disabled=connecting
+                :disabled="connecting | processing"
                 :icon="connect('icon')" 
                 @click="connect('btn')"></mdui-button-icon>
             </mdui-tooltip>
             <mdui-tooltip content="Type a message">
                 <SendText 
-                :disable="vadEnabled | disconnected"
-                :uuid="prop.uuid"></SendText>
+                :disable="vadEnabled | disconnected | processing"
+                :uuid="prop.uuid"
+                @sent="processing = true"></SendText>
             </mdui-tooltip>
             <mdui-tooltip content="Say a message">
                 <SendVoice 
-                :disable="vadEnabled | disconnected"
-                :uuid="prop.uuid"></SendVoice>
+                :disable="vadEnabled | disconnected | processing"
+                :uuid="prop.uuid"
+                @sent="processing = true"></SendVoice>
             </mdui-tooltip>
             <mdui-tooltip content="Configure this conversation">
                 <ConversationSettings 

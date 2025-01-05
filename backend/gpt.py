@@ -1,8 +1,10 @@
 from blinker import Signal
 from core.methods import modelNewMemory, modelEditMemory
+from audio import audioAddAlaw, audioAddPCM16, audioEnd, audioDel
 import json
 import websocket
 import threading
+import time
 
 gptSignal = Signal('gptSignal')
 global conversationUUID
@@ -57,43 +59,45 @@ def gptDelMemory(data):
         "type": "conversation.item.delete",
         "item_id": data['serverid']
     }
+    audioDel(data)
     ws.send(json.dumps(event))
 
-def gptNewVoice():
-    event = {
-        "type": "input_audio_buffer.clear"
-    }
-    ws.send(json.dumps(event))
+def gptNewVoice(): # 来自前端
+    gptCancelVoice()
     global memoryUUID
     memoryUUID = modelNewMemory({
         "message": "waiting for transcription",
         "voice": "None",
-        "role": True,
+        "role": False,
         "serverid": "None",
         "uuid": conversationUUID,
     })['uuid']
-    # local voice process needed
 
-def gptAddVoice(data):
+def gptAddVoice(data): # 来自前端，是alaw
     event = {
         "type": "input_audio_buffer.append",
         "audio": data['audio'],
     }
     ws.send(json.dumps(event))
-    # local voice process needed
+    audioAddAlaw({
+        "uuid": memoryUUID,
+        "audio": data['audio']
+    })
 
 def gptSendVoice():
-    event = {
-        "type": "input_audio_buffer.commit"
-    }
-    ws.send(json.dumps(event))
     modelEditMemory({
         "uuid": memoryUUID,
         "serverid": "None",
         "message": "None",
-        "voice": "The local voice link",
+        "voice": audioEnd({"uuid": memoryUUID}),
     })
-    # local voice process needed
+
+def gptCancelVoice():
+    event = {
+        "type": "input_audio_buffer.commit"
+    }
+    ws.send(json.dumps(event))
+    
 
 def gptRequire():
     event = {
@@ -127,18 +131,18 @@ def gptNewResponse(data):
         "voice": "None",
         "message": "Waiting for transcription"
     })['uuid']
-    # need to process the audio
 
 def gptResponseAudioDelta(data):
-    # need to process the audio
-    return
+    audioAddPCM16({
+        "uuid": memoryUUID,
+        "audio": data['delta'],
+    })
 
 def gptResponseAudioDone(data):
-    # need to process the audio
     modelEditMemory({
         "uuid": "None",
         "serverid": data['item_id'],
-        "voice": "the local voice link",
+        "voice": audioEnd({"uuid": memoryUUID}),
         "message": "None"
     })
 
@@ -166,6 +170,8 @@ def on_message(ws, data):
             gptResponseAudioDone(data)
         case "response.audio_transcript.delta":
             gptResponseTranscription(data)
+        case "response.done":
+            gptSignal.send(0, operation="replied", data=0)
         case _:
             print('Other Message')
 
@@ -193,6 +199,7 @@ def gptDisconnect():
     ws.close()
     server.join()
     print('Disconnect from OpenAI')
+    time.sleep(1)
     gptSignal.send(0, operation='disconnected', data=0)
 
 def gptInit(key):

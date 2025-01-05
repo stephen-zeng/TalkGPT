@@ -1,6 +1,7 @@
 from gevent import monkey
 monkey.patch_all()
 
+from django.core.management import call_command
 import django
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'talkgpt.settings')
@@ -11,11 +12,12 @@ import threading
 from core.models import Conversation
 from core.serializer import ConversationSerializer
 from core.signals import modelSignal
-# from core.methods import modelNewConversation, modelEditConversation, modelDelConversation
-# from core.methods import modelNewMemory, modelDelMemory
+from core.methods import modelNewConversation, modelDelConversation, modelEditConversation
+from core.methods import modelNewMemory, modelDelMemory
 from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
-# from gpt import gptNewConversation, gptEditConversation
-# from gpt import gptNewMemory, gptDelMemory
+from gpt import gptNewConversation, gptUpdateConversation
+from gpt import gptNewMemory, gptDelMemory
+from gpt import gptNewVoice, gptAddVoice, gptCancelVoice, gptSendVoice
 import gevent.pywsgi
 import socketio
 import django
@@ -51,15 +53,23 @@ def model(sid, operation, data):
             else:
                  sio.emit('data_response', json.dumps(serializer.data), room=sid)
         case 'newConversation':
-            
+            uuid = modelNewConversation(data)
+            data['uuid'] = uuid
+            gptNewConversation(data)
         case 'delConversation':
-            
+            modelDelConversation(data)
         case 'editConversation':
-            
-        case 'newMemoryText':
-
+            modelEditConversation(data)
+            gptUpdateConversation(data)
+        case 'newMemory':
+            uuid = modelNewMemory(data)['uuid']
+            data['uuid'] = uuid
+            gptNewMemory(data)
         case 'delMemory':
-            
+            id = modelDelMemory(data)
+            data['serverid'] = id['serverid']
+            data['uuid'] = id['uuid']
+            gptDelMemory(data)
         case _:
             print(f"From {sid}, receive an unknown operation")
 
@@ -67,23 +77,33 @@ def model(sid, operation, data):
 @sio.event
 def openai(sid, operation, data):
     match operation:
-        case 'setConfig':
+        case 'setConfig': # 来自前端
             print(f"From {sid}, set the config")
             print(data)
             global api_key
             api_key = data['key']
             gptInit(key=api_key)
-        case 'connect':
+        case 'connect': # 来自前端
             if api_key == 'None':
                 sio.emit('openai_response', 'unConfigured')
                 return
             gptConnect()
-        case 'disconnect':
+        case 'disconnect': # 来自前端
             gptDisconnect()
-        case 'connected':
+        case 'newVoice':
+            gptNewVoice(data)
+        case 'addVoice':
+            gptAddVoice(data)
+        case 'sendVoice':
+            gptSendVoice()
+        case 'cancelVoice':
+            gptCancelVoice()
+        case 'connected': # 来自gpt
             sio.emit('openai_response', 'connected')
-        case 'disconnected':
+        case 'disconnected': # 来自gpt
             sio.emit('openai_response', 'disconnected')
+        case 'replied': # 来自gpt
+            sio.emit('openai_response', 'replied')
             
 
 def init(port):
@@ -95,9 +115,14 @@ def init(port):
     )
     server.serve_forever()
 
+def djangoRun(port):
+    call_command('runserver', port)
 
 if __name__ == '__main__':
     main = threading.Thread(target=init, args=(11111,))
+    download = threading.Thread(target=djangoRun, args=('8080',))
     main.start()
+    download.start()
     main.join()
+    download.join()
     gptDisconnect()

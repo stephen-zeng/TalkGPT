@@ -18,7 +18,7 @@
         socket.emit('model', 'data', 0);
     }
     function submit() {
-        socket.emit('model','editConversation',conversation.value);
+        socket.emit('model', 'editConversation',conversation.value);
         cancelDialog();
     }
     function deleteConversation() {

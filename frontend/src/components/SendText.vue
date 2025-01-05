@@ -1,10 +1,11 @@
 <script setup>
-    import { ref, defineProps,inject } from 'vue';
+    import { ref, defineProps, inject, defineEmits } from 'vue';
     
     const socket = inject('socket');
     const prop = defineProps(['disable', 'uuid']);
     const dialogStatus = ref(false);
-    const content = ref('')
+    const content = ref('');
+    const emit = defineEmits(['sent'])
     
     function openDialog() {
         content.value = '';
@@ -19,12 +20,13 @@
         socket.emit('model', 'newMemory',
             {
                 role: false,
-                uuid: prop.uuid,
+                uuid: prop.uuid, // 这是对话UUID
                 message: content.value,
                 voice: 'None',
                 serverid: 'None'
             }
         )
+        emit('sent');
         cancelDialog();
     }
 </script>
@@ -51,7 +53,7 @@
         @click="submit">Send</mdui-button>
     </mdui-dialog>
     <mdui-button-icon 
-    :disabled="false"
+    :disabled="disable"
     icon="keyboard" 
     @click="openDialog"></mdui-button-icon>
 </template>
