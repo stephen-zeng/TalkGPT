@@ -14,6 +14,8 @@ memoryUUID = 'None'
 
 # GPT的发送操作
 def gptNewConversation(data):
+    print("gptNewConversation")
+    print(data)
     global conversationUUID
     conversationUUID = data['uuid']
     event = {
@@ -28,17 +30,23 @@ def gptNewConversation(data):
     ws.send(json.dumps(event))
 
 def gptUpdateConversation(data):
+    print("gptUpdateConversation")
+    print(data)
     event = {
         "type": "session.update",
         "session": {
             "model": data['model'],
             "instructions": data['instruction'],
             "temperature": data['temperature'],
+            "input_audio_format": "g711_alaw",
+            "output_audio_format": "pcm16",
         }
     }
     ws.send(json.dumps(event))
 
 def gptNewMemory(data):
+    print("gptNewMemory")
+    print(data)
     global memoryUUID
     memoryUUID = data['uuid']
     event = {
@@ -55,6 +63,8 @@ def gptNewMemory(data):
     ws.send(json.dumps(event))
 
 def gptDelMemory(data):
+    print("gptDelMemory")
+    print(data)
     event = {
         "type": "conversation.item.delete",
         "item_id": data['serverid']
@@ -63,6 +73,7 @@ def gptDelMemory(data):
     ws.send(json.dumps(event))
 
 def gptNewVoice(): # 来自前端
+    print("gptNewVoice")
     gptCancelVoice()
     global memoryUUID
     memoryUUID = modelNewMemory({
@@ -74,6 +85,8 @@ def gptNewVoice(): # 来自前端
     })['uuid']
 
 def gptAddVoice(data): # 来自前端，是alaw
+    print("gptAddVoice")
+    print(data)
     event = {
         "type": "input_audio_buffer.append",
         "audio": data['audio'],
@@ -85,6 +98,7 @@ def gptAddVoice(data): # 来自前端，是alaw
     })
 
 def gptSendVoice():
+    print("gptSendVoice")
     modelEditMemory({
         "uuid": memoryUUID,
         "serverid": "None",
@@ -93,6 +107,7 @@ def gptSendVoice():
     })
 
 def gptCancelVoice():
+    print("gptCancelVoice")
     event = {
         "type": "input_audio_buffer.commit"
     }
@@ -100,6 +115,7 @@ def gptCancelVoice():
     
 
 def gptRequire():
+    print("gptRequire")
     event = {
         "type": "response.create",
     }
@@ -107,6 +123,8 @@ def gptRequire():
 
 # GPT的接收操作
 def gptMemoryCreated(data): # item
+    print("gptMemoryCreated")
+    print(data)
     modelEditMemory({
         "uuid": memoryUUID,
         "serverid": data['id'],
@@ -115,6 +133,8 @@ def gptMemoryCreated(data): # item
     })
 
 def gptMemoryTranscription(data):
+    print("gptMemoryTranscription")
+    print(data)
     modelEditMemory({
         "uuid": "None",
         "serverid": data['item_id'],
@@ -123,6 +143,8 @@ def gptMemoryTranscription(data):
     })
 
 def gptNewResponse(data):
+    print("gptNewResponse")
+    print(data)
     global memoryUUID
     memoryUUID = modelNewMemory({
         "uuid": conversationUUID,
@@ -133,12 +155,16 @@ def gptNewResponse(data):
     })['uuid']
 
 def gptResponseAudioDelta(data):
+    print("gptResponseAudioDelta")
+    print(data)
     audioAddPCM16({
         "uuid": memoryUUID,
         "audio": data['delta'],
     })
 
 def gptResponseAudioDone(data):
+    print("gptResponseAudioDone")
+    print(data)
     modelEditMemory({
         "uuid": "None",
         "serverid": data['item_id'],
@@ -147,6 +173,8 @@ def gptResponseAudioDone(data):
     })
 
 def gptResponseTranscription(data):
+    print("gptResponseTranscription")
+    print(data)
     modelEditMemory({
         "uuid": "None",
         "serverid": data['item_id'],
@@ -154,7 +182,8 @@ def gptResponseTranscription(data):
         "voice": "None"
     })
 
-def on_message(ws, data):
+def on_message(ws, receive):
+    data = json.loads(receive)
     print("Receive data from OpenAI")
     print(data)
     match data['type']:

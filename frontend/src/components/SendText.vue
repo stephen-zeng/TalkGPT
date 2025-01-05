@@ -26,6 +26,7 @@
                 serverid: 'None'
             }
         )
+        socket.emit('openai', 'reply', 0);
         emit('sent');
         cancelDialog();
     }

@@ -23,7 +23,8 @@
         dialogStatus.value = false;
         emit('sent');
         await recorder.stop();
-        socket.emit('openai', 'sendVoice', 0)
+        socket.emit('openai', 'sendVoice', 0);
+        socket.emit('openai', 'reply', 0);
     }
 </script>
 <template>

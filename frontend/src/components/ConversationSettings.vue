@@ -28,7 +28,6 @@
                 uuid: conversation.value.uuid,
             }
         );
-        socket.emit('openai', 'disconnect', 0);
         emit('del');
     }
     function changeModel(newModel) {

@@ -34,7 +34,6 @@
 	}
 	function updateConversation(index) {
 		// console.log(index);
-		socket.emit('openai', 'disconnect', 0);
 		currentConversation.value = index;
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;

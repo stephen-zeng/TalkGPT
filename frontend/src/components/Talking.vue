@@ -48,7 +48,7 @@
             <mdui-avatar :src="setRole(talking.role)"></mdui-avatar>
         </mdui-tooltip>
         <mdui-text-field variant="outlined" :label="getTime()" :value="talking.message" readonly autosize>
-            <mdui-button-icon slot="icon" icon="play_circle" 
+            <mdui-button-icon slot="icon" icon="play_circle" v-if="talking.voice!='None'"
             v-show="talking.voice" @click="playAudio"></mdui-button-icon>
             <mdui-button-icon slot="end-icon" icon="delete" @click="deleteMemory"></mdui-button-icon>
         </mdui-text-field>

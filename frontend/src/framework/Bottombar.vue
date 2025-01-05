@@ -57,7 +57,7 @@
         scroll-target=".conversation">
             <mdui-tooltip content="Connect to OpenAI">
                 <mdui-button-icon 
-                :disabled="connecting | processing"
+                :disabled="connecting"
                 :icon="connect('icon')" 
                 @click="connect('btn')"></mdui-button-icon>
             </mdui-tooltip>

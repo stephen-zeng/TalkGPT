@@ -34,7 +34,6 @@
                 vad: false,
             }
         )
-        socket.emit('openai', 'disconnect', 0);
         emit('add');
         cancelDialog();
     }

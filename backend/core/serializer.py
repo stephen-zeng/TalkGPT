@@ -10,7 +10,7 @@ class MemorySerializer(serializers.ModelSerializer):
             "voice",
             "time",
             "uuid",
-            "serverID",
+            "serverid",
         ]
 
 class ConversationSerializer(serializers.ModelSerializer):

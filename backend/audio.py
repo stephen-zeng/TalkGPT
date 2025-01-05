@@ -7,13 +7,11 @@ global path
 
 def audioAddPCM16(data):
     path = 'audio/' + data['uuid'] + '.wav'
-    if (os.path.exists(path) == False):
-        return
     pcm16 = base64.b64decode(data['audio'])
     with wave.open(path, 'wb') as audio:
         audio.setnchannels(1)
         audio.setsampwidth(2)
-        audio.setframerate(44100)
+        audio.setframerate(24000)
         audio.writeframes(pcm16)
     return 'https://talk.goforit.top/' + path
 
