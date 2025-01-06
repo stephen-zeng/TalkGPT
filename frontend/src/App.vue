@@ -32,18 +32,21 @@
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
-	function updateConversation(index) {
+	function changeConversation(index) {
 		// console.log(index);
 		currentConversation.value = index;
+		socket.emit('openai', 'change', {
+			key: conversations.value[currentConversation.value].key
+		});
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
-	}
-	function changeVad(newMode) {
-		vad.value = newMode;
 	}
 	function deleteConversation() {
 		// console.log("delete signal from root app")
 		if (currentConversation.value != 0) currentConversation.value--;
+	}
+	function changeVad(newMode) {
+		vad.value = newMode;
 	}
 	function getSocket() {
 		// console.log("Init WS");
@@ -65,9 +68,11 @@
 		);
 		socket.on('data_response',
 			(data)=> {
-				// console.log("Receiving Data");
 				conversations.value = JSON.parse(data);
-				console.log(conversations.value);
+				if (conversations.value.length)
+					socket.emit('openai', 'change', {
+						key: conversations.value[currentConversation.value].key
+				})
 			}
 		)
 	}
@@ -96,14 +101,14 @@
 <template>
 	<mdui-layout full-height>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)"
-		@addConversation="currentConversation = conversations.length" 
+		@addConversation="currentConversation.value = conversations.value.length" 
 		:title="conversations[currentConversation]?.title"></Header>
 		<Bottombar :uuid="conversations[currentConversation]?.uuid"
 		:index="currentConversation"
 		@del="deleteConversation()" @vad="changeVad"></Bottombar>
 		<Sidebar :sidebarStatus="sidebarStatus" 
 		@closeSidebar="changeSidebarStatus(false)"
-		@chooseConversation="updateConversation"
+		@chooseConversation="changeConversation"
 		:conversations="conversations"></Sidebar>
 		<Conversation :memory="conversations[currentConversation]?.memory"></Conversation>
 	</mdui-layout>

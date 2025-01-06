@@ -60,7 +60,7 @@
                 <mdui-menu-item @click="setVoice('echo')">echo</mdui-menu-item>
                 <mdui-menu-item @click="setVoice('shimmer')">shimmer</mdui-menu-item>
                 <mdui-menu-item @click="setVoice('ash')">ash</mdui-menu-item>
-                <mdui-menu-item @click="setVoice('balled')">ballad</mdui-menu-item>
+                <mdui-menu-item @click="setVoice('ballad')">ballad</mdui-menu-item>
                 <mdui-menu-item @click="setVoice('coral')">coral</mdui-menu-item>
                 <mdui-menu-item @click="setVoice('sage')">sage</mdui-menu-item>
                 <mdui-menu-item @click="setVoice('verse')">verse</mdui-menu-item>

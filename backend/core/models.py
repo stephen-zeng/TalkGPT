@@ -13,6 +13,8 @@ class Conversation(models.Model):
     temperature = models.FloatField(null=True) # 0.6~1.2
     instruction = models.TextField(null=True)
     vad = models.BooleanField(default=False)
+    key = models.TextField(null=True,
+                           default='None')
 
 class Memory(models.Model):
     conversation = models.ForeignKey("Conversation",

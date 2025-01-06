@@ -1,10 +1,12 @@
 from blinker import Signal
-from core.methods import modelNewMemory, modelEditMemory
+from core.methods import modelNewMemory, modelEditMemory, modelEditConversation
 from audio import audioAddAlaw, audioAddPCM16, audioEnd, audioDel
 import json
 import websocket
 import threading
 import time
+import requests
+
 
 gptSignal = Signal('gptSignal')
 global conversationUUID
@@ -19,15 +21,37 @@ def gptNewConversation(data):
     global conversationUUID
     conversationUUID = data['uuid']
     event = {
-        "object": "realtime.session",
         "model": data['model'],
-        "instructions": data['instruction'],
         "voice": data['voice'],
-        "input_audio_format": "g711_alaw",
-        "output_audio_format": "pcm16",
-        "temperature": data['temperature'],
     }
-    ws.send(json.dumps(event))
+    headers = {
+        'Authorization': f'Bearer {apikey}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.post('https://api.openai.com/v1/realtime/sessions', headers=headers, json=event).json()
+    modelEditConversation({
+        'uuid': conversationUUID,
+        'key': response['client_secret']['value']})
+    print("New Conversation Created")
+    print(response)
+
+def gptChangeConversation(data):
+    print("gptChangeConvesation")
+    print(data)
+    if (data['key']=='None'):
+        return
+    url = "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17"
+    headers = [
+        "Authorization: Bearer " + apikey,
+        "OpenAI-Beta: realtime=v1"
+    ]
+    global ws
+    ws = websocket.WebSocketApp(
+        url,
+        header=headers,
+        on_open=on_open,
+        on_message=on_message,
+    )
 
 def gptUpdateConversation(data):
     print("gptUpdateConversation")
@@ -40,6 +64,7 @@ def gptUpdateConversation(data):
             "temperature": data['temperature'],
             "input_audio_format": "g711_alaw",
             "output_audio_format": "pcm16",
+            "turn_detection": None,
         }
     }
     ws.send(json.dumps(event))
@@ -101,8 +126,6 @@ def gptSendVoice():
     print("gptSendVoice")
     modelEditMemory({
         "uuid": memoryUUID,
-        "serverid": "None",
-        "message": "None",
         "voice": audioEnd({"uuid": memoryUUID}),
     })
 
@@ -128,17 +151,13 @@ def gptMemoryCreated(data): # item
     modelEditMemory({
         "uuid": memoryUUID,
         "serverid": data['id'],
-        "message": "None",
-        "voice": "None"
     })
 
 def gptMemoryTranscription(data):
     print("gptMemoryTranscription")
     print(data)
     modelEditMemory({
-        "uuid": "None",
         "serverid": data['item_id'],
-        "voice": "None",
         "message": data['transription']
     })
 
@@ -166,20 +185,16 @@ def gptResponseAudioDone(data):
     print("gptResponseAudioDone")
     print(data)
     modelEditMemory({
-        "uuid": "None",
         "serverid": data['item_id'],
         "voice": audioEnd({"uuid": memoryUUID}),
-        "message": "None"
     })
 
 def gptResponseTranscription(data):
     print("gptResponseTranscription")
     print(data)
     modelEditMemory({
-        "uuid": "None",
         "serverid": data['item_id'],
         "message": data['delta'],
-        "voice": "None"
     })
 
 def on_message(ws, receive):
@@ -232,15 +247,5 @@ def gptDisconnect():
     gptSignal.send(0, operation='disconnected', data=0)
 
 def gptInit(key):
-    url = "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17"
-    headers = [
-        "Authorization: Bearer " + key,
-        "OpenAI-Beta: realtime=v1"
-    ]
-    global ws
-    ws = websocket.WebSocketApp(
-        url,
-        header=headers,
-        on_open=on_open,
-        on_message=on_message,
-    )
+    global apikey
+    apikey = key

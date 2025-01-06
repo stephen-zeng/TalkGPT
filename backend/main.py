@@ -15,7 +15,7 @@ from core.signals import modelSignal
 from core.methods import modelNewConversation, modelDelConversation, modelEditConversation
 from core.methods import modelNewMemory, modelDelMemory
 from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
-from gpt import gptNewConversation, gptUpdateConversation
+from gpt import gptNewConversation, gptUpdateConversation, gptChangeConversation
 from gpt import gptNewMemory, gptDelMemory, gptRequire
 from gpt import gptNewVoice, gptAddVoice, gptCancelVoice, gptSendVoice
 import gevent.pywsgi
@@ -55,7 +55,7 @@ def model(sid, operation, data):
         case 'newConversation':
             uuid = modelNewConversation(data)
             data['uuid'] = uuid
-            gptUpdateConversation(data)
+            gptNewConversation(data)
         case 'delConversation':
             modelDelConversation(data)
         case 'editConversation':
@@ -88,6 +88,8 @@ def openai(sid, operation, data):
                 sio.emit('openai_response', 'unConfigured')
                 return
             gptConnect()
+        case 'change':
+            gptChangeConversation(data)
         case 'disconnect': # 来自前端
             gptDisconnect()
         case 'newVoice':

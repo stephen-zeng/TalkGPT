@@ -27,5 +27,6 @@ class ConversationSerializer(serializers.ModelSerializer):
             "voice",
             "temperature",
             "instruction",
-            "vad"
+            "vad",
+            "key"
         ]

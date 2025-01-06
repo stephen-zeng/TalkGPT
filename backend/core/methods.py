@@ -20,11 +20,18 @@ def modelEditConversation(data):
     print(data)
     edit = Conversation.objects.get(uuid = data['uuid'])
     print(f"found {edit}")
-    edit.title = data['title']
-    edit.model = data['model']
-    edit.instruction = data['instruction']
-    edit.vad = data['vad']
-    edit.temperature = data['temperature']
+    if 'title' in data:
+        edit.title = data['title']
+    if 'model' in data:
+        edit.model = data['model']
+    if 'instruction' in data:
+        edit.instruction = data['instruction']
+    if 'vad' in data:
+        edit.vad = data['vad']
+    if 'temperature' in data:
+        edit.temperature = data['temperature']
+    if 'key' in data:
+        edit.key = data['key']
     print(f"edited {edit}")
     edit.save()
 
@@ -65,18 +72,21 @@ def modelDelMemory(data):
 def modelEditMemory(data): # 主要是更改transcription，所以是加法
     print('modelEditMemory')
     print(data)
-    if (data['uuid']!='None'): # 给啥用啥
+    if 'uuid' in data:
         print('Find by UUID')
         edit = Memory.objects.get(uuid=data['uuid'])
-    else:
+    elif 'serverid' in data:
         print('Find by serverid')
         edit = Memory.objects.get(serverid=data['serverid'])
+    else:
+        print("Unable to find")
+        return
     print(f"found {edit}")
-    if (data['message']!='None'):
+    if 'message' in data:
         edit.message += data['message']
-    if (data['voice']!='None'):
+    if 'voice' in data:
         edit.voice = data['voice']
-    if (data['serverid']!='None'):
+    if 'serverid' in data:
         edit.serverid = data['serverod']
     print(f"edited serverID {edit.serverid}")
     edit.save()
