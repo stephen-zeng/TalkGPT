@@ -1,6 +1,6 @@
 from blinker import Signal
 from core.methods import modelNewMemory, modelEditMemory, modelEditConversation
-from audio import audioAddAlaw, audioAddPCM16, audioEnd, audioDel
+from audio import audioAdd, audioEnd, audioDel
 import json
 import websocket
 import threading
@@ -23,6 +23,7 @@ def gptNewConversation(data):
     event = {
         "model": data['model'],
         "voice": data['voice'],
+        "turn_detection": None,
     }
     headers = {
         'Authorization': f'Bearer {apikey}',
@@ -34,24 +35,20 @@ def gptNewConversation(data):
         'key': response['client_secret']['value']})
     print("New Conversation Created")
     print(response)
+    event = {
+        "type": "session.update",
+        "session": {
+            "input_audio_format": "g711_alaw",
+            "turn_detection": None,
+        }
+    }
+    ws.send(json.dumps(event))
+    print("Turned off VAD")
 
 def gptChangeConversation(data):
     print("gptChangeConvesation")
     print(data)
-    if (data['key']=='None'):
-        return
-    url = "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17"
-    headers = [
-        "Authorization: Bearer " + apikey,
-        "OpenAI-Beta: realtime=v1"
-    ]
-    global ws
-    ws = websocket.WebSocketApp(
-        url,
-        header=headers,
-        on_open=on_open,
-        on_message=on_message,
-    )
+    # to be continued
 
 def gptUpdateConversation(data):
     print("gptUpdateConversation")
@@ -117,7 +114,7 @@ def gptAddVoice(data): # 来自前端，是alaw
         "audio": data['audio'],
     }
     ws.send(json.dumps(event))
-    audioAddAlaw({
+    audioAdd({
         "uuid": memoryUUID,
         "audio": data['audio']
     })
@@ -126,7 +123,10 @@ def gptSendVoice():
     print("gptSendVoice")
     modelEditMemory({
         "uuid": memoryUUID,
-        "voice": audioEnd({"uuid": memoryUUID}),
+        "voice": audioEnd({
+            "uuid": memoryUUID,
+            "frame": 44100,
+        }),
     })
 
 def gptCancelVoice():
@@ -174,9 +174,9 @@ def gptNewResponse(data):
     })['uuid']
 
 def gptResponseAudioDelta(data):
-    print("gptResponseAudioDelta")
-    print(data)
-    audioAddPCM16({
+    # print("gptResponseAudioDelta")
+    # print(data)
+    audioAdd({
         "uuid": memoryUUID,
         "audio": data['delta'],
     })
@@ -185,15 +185,18 @@ def gptResponseAudioDone(data):
     print("gptResponseAudioDone")
     print(data)
     modelEditMemory({
-        "serverid": data['item_id'],
-        "voice": audioEnd({"uuid": memoryUUID}),
+        "uuid": memoryUUID,
+        "frame": audioEnd({
+            "uuid": memoryUUID,
+            "frame": 24000,
+        }),
     })
 
 def gptResponseTranscription(data):
     print("gptResponseTranscription")
     print(data)
     modelEditMemory({
-        "serverid": data['item_id'],
+        "uuid": memoryUUID,
         "message": data['delta'],
     })
 
@@ -249,3 +252,15 @@ def gptDisconnect():
 def gptInit(key):
     global apikey
     apikey = key
+    url = "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17"
+    headers = [
+        "Authorization: Bearer " + apikey,
+        "OpenAI-Beta: realtime=v1"
+    ]
+    global ws
+    ws = websocket.WebSocketApp(
+        url,
+        header=headers,
+        on_open=on_open,
+        on_message=on_message,
+    )

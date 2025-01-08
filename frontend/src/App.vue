@@ -32,6 +32,10 @@
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
+	function addConversation() {
+		currentConversation.value = conversations.value.length;
+		socket.emit('openai', 'change', conversations.value[currentConversation.value])
+	}
 	function changeConversation(index) {
 		// console.log(index);
 		currentConversation.value = index;
@@ -44,6 +48,8 @@
 	function deleteConversation() {
 		// console.log("delete signal from root app")
 		if (currentConversation.value != 0) currentConversation.value--;
+		if (conversations.value.length)
+			socket.emit('openai', 'change', conversations.value[currentConversation.value])
 	}
 	function changeVad(newMode) {
 		vad.value = newMode;
@@ -69,10 +75,6 @@
 		socket.on('data_response',
 			(data)=> {
 				conversations.value = JSON.parse(data);
-				if (conversations.value.length)
-					socket.emit('openai', 'change', {
-						key: conversations.value[currentConversation.value].key
-				})
 			}
 		)
 	}
@@ -101,7 +103,7 @@
 <template>
 	<mdui-layout full-height>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)"
-		@addConversation="currentConversation.value = conversations.value.length" 
+		@addConversation="addConversation()" 
 		:title="conversations[currentConversation]?.title"></Header>
 		<Bottombar :uuid="conversations[currentConversation]?.uuid"
 		:index="currentConversation"

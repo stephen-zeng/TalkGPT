@@ -8,7 +8,6 @@
     const prop = defineProps(['uuid', 'index']);
     const emit = defineEmits(['del', 'vad'])
     const socket = inject('socket');
-    const connecting = ref(false);
     const disconnected = ref(true);
     const processing = ref(false);
 
@@ -18,7 +17,7 @@
             if (disconnected.value) return "play_arrow";
             else return "stop";
         } else if (operation == 'btn') {
-            connecting.value = true;
+            processing.value = true;
             if (disconnected.value) {
                 socket.emit('openai', 'connect', 0);
             } else {
@@ -32,13 +31,13 @@
             socket.on('openai_response', 
                 (data)=>{
                     if (data=='connected') {
-                        connecting.value = false;
+                        processing.value = false;
                         disconnected.value = false;
                     } else if (data=='disconnected') {
-                        connecting.value = false;
+                        processing.value = false;
                         disconnected.value = true;
                     } else if (data=='unConfigured') {
-                        connecting.value = false;
+                        processing.value = false;
                     } else if (data=='replied') {
                         processing.value = false;
                     }
@@ -54,10 +53,10 @@
         style="justify-content: center;"
         scroll-behavior="hide"
         scroll-threshold="30"
-        scroll-target=".conversation">
+        scroll-target=".talkings .conversations">
             <mdui-tooltip content="Connect to OpenAI">
                 <mdui-button-icon 
-                :disabled="connecting"
+                :disabled="processing"
                 :icon="connect('icon')" 
                 @click="connect('btn')"></mdui-button-icon>
             </mdui-tooltip>

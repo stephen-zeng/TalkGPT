@@ -9,7 +9,7 @@
 <template>
     <mdui-top-app-bar 
     variant="center-aligned" 
-    scroll-target=".conversation">
+    scroll-target=".talkings">
         <mdui-button-icon 
         icon="menu" 
         @click="emit('changeSidebarStatus')"></mdui-button-icon>

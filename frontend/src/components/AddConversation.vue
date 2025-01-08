@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, inject, defineEmits } from 'vue';
+    import { ref, inject, defineEmits, onMounted } from 'vue';
     const dialogStatus = ref(false);
     const title = ref('');
     const voice = ref('alloy');
@@ -8,6 +8,7 @@
     const model = ref('gpt-4o-mini-realtime-preview-2024-12-17');
     const modelBtn = ref('Model: gpt-4o-mini-realtime-preview-2024-12-17');
     const socket = inject('socket');
+    const disconnected = ref('true');
     const emit = defineEmits(['add']);
     
     function openDialog() {
@@ -45,6 +46,19 @@
         model.value = newModel;
         modelBtn.value = 'Model: ' + model.value;
     }
+
+    onMounted(
+        ()=>{
+            socket.on("openai_response", 
+                (data)=>{
+                    if (data=='disconnected') {
+                        disconnected.value = true;
+                    } else if (data=='connected') {
+                        disconnected.value = false;
+                    }
+            })
+        }
+    )
 </script>
 <template>
     <mdui-dialog :open=dialogStatus @overlay-click="cancelDialog()"
@@ -76,10 +90,10 @@
         <mdui-button slot="action" variant="outlined" @click="cancelDialog">Cancel</mdui-button>
         <mdui-button slot="action" @click="submit">Done</mdui-button>
     </mdui-dialog>
-    <mdui-button-icon icon="add" @click="openDialog"></mdui-button-icon>
-    <!-- <mdui-tooltip content="New Conversation" placement="top-right">
-        <mdui-fab icon="add" @click="openDialog"></mdui-fab>
-    </mdui-tooltip> -->
+    <mdui-button-icon 
+    icon="add" 
+    :disabled="disconnected"
+    @click="openDialog"></mdui-button-icon>
 </template>
 <style scope>
 #voiceBtn {

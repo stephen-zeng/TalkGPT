@@ -4,27 +4,20 @@ import audioop
 import os
 
 global path
+global audio
+audio = {}
 
-def audioAddPCM16(data):
-    path = 'audio/' + data['uuid'] + '.wav'
-    pcm16 = base64.b64decode(data['audio'])
-    with wave.open(path, 'wb') as audio:
-        audio.setnchannels(1)
-        audio.setsampwidth(2)
-        audio.setframerate(24000)
-        audio.writeframes(pcm16)
+def audioAdd(data):
+    print("Here comes an audio data")
+    print(data)
+    path = 'audio/' + str(data['uuid']) + '.wav'
+    global audio
+    if str(data['uuid']) in audio:
+        audio[str(data['uuid'])] += data['audio']
+    else:
+        audio[str(data['uuid'])] = data['audio']
     return 'https://talk.goforit.top/' + path
 
-def audioAddAlaw(data):
-    path = 'audio/' + data['uuid'] + '.wav'
-    alaw = base64.b64decode(data['audio'])
-    pcm16 = audioop.alaw2lin(alaw, 2)
-    with wave.open(path, 'wb') as audio:
-        audio.setnchannels(1)
-        audio.setsampwidth(2)
-        audio.setframerate(44100)
-        audio.writeframes(pcm16)
-    return 'https://talk.goforit.top/' + path
 
 def audioDel(data):
     path = 'audio/' + data['uuid'] + '.wav'
@@ -37,7 +30,22 @@ def audioDel(data):
         print(f"An error occurred: {e}")
 
 def audioEnd(data):
-    path = 'audio/' + data['uuid'] + '.wav'
+    print("Here comes the audio ending")
+    print(data)
+    global audio
+    print(audio[str(data['uuid'])])
+    path = 'audio/' + str(data['uuid']) + '.wav'
+    if data['frame']==24000:
+        pcm16 = base64.b64decode(audio[str(data['uuid'])])
+    else:
+        alaw = base64.b64decode(audio[str(data['uuid'])])
+        pcm16 = audioop.alaw2lin(alaw, 2)
+    with wave.open(path, 'wb') as file:
+        file.setnchannels(1)
+        file.setsampwidth(2)
+        file.setframerate(data['frame'])
+        file.writeframes(pcm16)
+    del audio[str(data['uuid'])]
     return 'https://talk.goforit.top/' + path
         
     

@@ -83,6 +83,8 @@ def modelEditMemory(data): # 主要是更改transcription，所以是加法
         return
     print(f"found {edit}")
     if 'message' in data:
+        if edit.message == "Waiting for transcription":
+            edit.message = ''
         edit.message += data['message']
     if 'voice' in data:
         edit.voice = data['voice']

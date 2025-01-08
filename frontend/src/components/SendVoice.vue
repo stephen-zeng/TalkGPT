@@ -7,7 +7,6 @@
     const emit = defineEmits(['sent']);
     const dialogStatus = ref(false);
     const recorder = new Recorder(socket);
-    let audioData;
     
     async function openDialog() {
         dialogStatus.value = true;

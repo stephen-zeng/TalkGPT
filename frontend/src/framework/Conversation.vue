@@ -5,7 +5,7 @@
 
 </script>
 <template>
-    <mdui-layout-main class="conversation">
+    <mdui-layout-main class="talkings">
         <Talking v-for="talking in props.memory" 
         :talking="talking"></Talking>
         <div class="filling"></div>
