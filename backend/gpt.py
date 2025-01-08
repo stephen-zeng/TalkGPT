@@ -18,41 +18,14 @@ memoryUUID = 'None'
 def gptNewConversation(data):
     print("gptNewConversation")
     print(data)
-    global conversationUUID
-    conversationUUID = data['uuid']
-    event = {
-        "model": data['model'],
-        "voice": data['voice'],
-        "turn_detection": None,
-    }
-    headers = {
-        'Authorization': f'Bearer {apikey}',
-        'Content-Type': 'application/json'
-    }
-    response = requests.post('https://api.openai.com/v1/realtime/sessions', headers=headers, json=event).json()
-    modelEditConversation({
-        'uuid': conversationUUID,
-        'key': response['client_secret']['value']})
-    print("New Conversation Created")
-    print(response)
-    event = {
-        "type": "session.update",
-        "session": {
-            "input_audio_format": "g711_alaw",
-            "turn_detection": None,
-        }
-    }
-    ws.send(json.dumps(event))
-    print("Turned off VAD")
-
-def gptChangeConversation(data):
-    print("gptChangeConvesation")
-    print(data)
-    # to be continued
+    
+    gptUpdateConversation(data)
 
 def gptUpdateConversation(data):
     print("gptUpdateConversation")
     print(data)
+    global conversationUUID
+    conversationUUID = data['uuid']
     event = {
         "type": "session.update",
         "session": {
@@ -186,7 +159,7 @@ def gptResponseAudioDone(data):
     print(data)
     modelEditMemory({
         "uuid": memoryUUID,
-        "frame": audioEnd({
+        "voice": audioEnd({
             "uuid": memoryUUID,
             "frame": 24000,
         }),
@@ -208,6 +181,7 @@ def on_message(ws, receive):
         case "conversation.item.created":
             gptMemoryCreated(data['item'])
         case "conversation.item.input_audio_transcription.completed":
+            gptSignal.send(0, operation="replying", data=0)
             gptMemoryTranscription(data)
         case "response.created":
             gptNewResponse(data['response'])
@@ -217,6 +191,7 @@ def on_message(ws, receive):
             gptResponseAudioDone(data)
         case "response.audio_transcript.delta":
             gptResponseTranscription(data)
+            gptSignal.send(0, operation="replying", data=0)
         case "response.done":
             gptSignal.send(0, operation="replied", data=0)
         case _:

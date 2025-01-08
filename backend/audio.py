@@ -20,7 +20,7 @@ def audioAdd(data):
 
 
 def audioDel(data):
-    path = 'audio/' + data['uuid'] + '.wav'
+    path = 'audio/' + str(data['uuid']) + '.wav'
     try:
         os.remove(path)
         print(f"File {path} deleted successfully.")

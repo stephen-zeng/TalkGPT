@@ -39,7 +39,11 @@ def modelDelConversation(data):
     print('modelDelConversation')
     print(data)
     delete = Conversation.objects.get(uuid=data['uuid'])
+    memories = []
+    for memory in delete.memory.all():
+        memories.append(memory.uuid)
     delete.delete()
+    return memories
 
 def modelNewMemory(data):
     print('modelNewMemory')

@@ -32,16 +32,10 @@
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
-	function addConversation() {
-		currentConversation.value = conversations.value.length;
-		socket.emit('openai', 'change', conversations.value[currentConversation.value])
-	}
 	function changeConversation(index) {
 		// console.log(index);
 		currentConversation.value = index;
-		socket.emit('openai', 'change', {
-			key: conversations.value[currentConversation.value].key
-		});
+		socket.emit('openai', 'change', conversations.value[currentConversation.value]);
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
@@ -77,6 +71,15 @@
 				conversations.value = JSON.parse(data);
 			}
 		)
+		socket.on('openai_response',
+			(data)=> {
+				if (data=='replying')
+				window.scrollBy({
+					top: document.documentElement.scrollHeight - window.scrollY,
+					behavior: 'smooth'
+				});
+			}
+		)
 	}
 
 	onMounted(
@@ -98,12 +101,11 @@
 		}
 	)
 	
-
 </script>
 <template>
 	<mdui-layout full-height>
 		<Header @changeSidebarStatus="changeSidebarStatus(true)"
-		@addConversation="addConversation()" 
+		@addConversation="currentConversation = conversations.length" 
 		:title="conversations[currentConversation]?.title"></Header>
 		<Bottombar :uuid="conversations[currentConversation]?.uuid"
 		:index="currentConversation"

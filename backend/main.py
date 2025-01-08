@@ -15,9 +15,10 @@ from core.signals import modelSignal
 from core.methods import modelNewConversation, modelDelConversation, modelEditConversation
 from core.methods import modelNewMemory, modelDelMemory
 from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
-from gpt import gptNewConversation, gptUpdateConversation, gptChangeConversation
+from gpt import gptNewConversation, gptUpdateConversation
 from gpt import gptNewMemory, gptDelMemory, gptRequire
 from gpt import gptNewVoice, gptAddVoice, gptCancelVoice, gptSendVoice
+from audio import audioDel
 import gevent.pywsgi
 import socketio
 import django
@@ -57,7 +58,9 @@ def model(sid, operation, data):
             data['uuid'] = uuid
             gptNewConversation(data)
         case 'delConversation':
-            modelDelConversation(data)
+            memories = modelDelConversation(data)
+            for uuid in memories:
+                audioDel({'uuid': uuid})
         case 'editConversation':
             modelEditConversation(data)
             gptUpdateConversation(data)
@@ -89,7 +92,7 @@ def openai(sid, operation, data):
                 return
             gptConnect()
         case 'change':
-            gptChangeConversation(data)
+            gptUpdateConversation(data)
         case 'disconnect': # 来自前端
             gptDisconnect()
         case 'newVoice':
@@ -106,6 +109,8 @@ def openai(sid, operation, data):
             sio.emit('openai_response', 'connected')
         case 'disconnected': # 来自gpt
             sio.emit('openai_response', 'disconnected')
+        case 'replying':# 来自gpt
+            sio.emit('openai_response', 'replying')
         case 'replied': # 来自gpt
             sio.emit('openai_response', 'replied')
             
