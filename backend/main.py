@@ -96,7 +96,7 @@ def openai(sid, operation, data):
         case 'disconnect': # 来自前端
             gptDisconnect()
         case 'newVoice':
-            gptNewVoice(data)
+            gptNewVoice()
         case 'addVoice':
             gptAddVoice(data)
         case 'sendVoice':

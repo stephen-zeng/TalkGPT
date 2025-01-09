@@ -32,9 +32,10 @@ def gptUpdateConversation(data):
             "model": data['model'],
             "instructions": data['instruction'],
             "temperature": data['temperature'],
-            "input_audio_format": "g711_alaw",
+            "input_audio_format": "pcm16",
             "output_audio_format": "pcm16",
             "turn_detection": None,
+            "voice": data['voice'],
         }
     }
     ws.send(json.dumps(event))
@@ -69,7 +70,6 @@ def gptDelMemory(data):
 
 def gptNewVoice(): # 来自前端
     print("gptNewVoice")
-    gptCancelVoice()
     global memoryUUID
     memoryUUID = modelNewMemory({
         "message": "waiting for transcription",
@@ -98,7 +98,6 @@ def gptSendVoice():
         "uuid": memoryUUID,
         "voice": audioEnd({
             "uuid": memoryUUID,
-            "frame": 44100,
         }),
     })
 
@@ -161,7 +160,6 @@ def gptResponseAudioDone(data):
         "uuid": memoryUUID,
         "voice": audioEnd({
             "uuid": memoryUUID,
-            "frame": 24000,
         }),
     })
 
