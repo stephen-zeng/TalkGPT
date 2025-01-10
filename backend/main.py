@@ -120,6 +120,8 @@ def openai(sid, operation, data):
         case 'disconnected': # 来自gpt
             sio.emit('openai_response', 'disconnected')
             # sio.emit('backend', 'processed')
+        case 'inited':
+            sio.emit('openai_response', 'inited')
         case 'replying':# 来自gpt
             sio.emit('backend', 'processing')
         case 'replied': # 来自gpt

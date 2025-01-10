@@ -55,6 +55,7 @@
                     if (data=='disconnected') {
                         disconnected.value = true;
                     } else if (data=='connected') {
+                        openDialog();
                         disconnected.value = false;
                     }
             })

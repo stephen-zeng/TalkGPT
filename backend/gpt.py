@@ -6,8 +6,8 @@ import websocket
 import threading
 import time
 import os
-os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
-os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
+# os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
+# os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
 
 
 gptSignal = Signal('gptSignal')
@@ -43,6 +43,7 @@ def gptUpdateConversation(data):
             },
         }
     }
+    gptSignal.send(0, operation="inited", data=0)
     ws.send(json.dumps(event))
 
 def gptNewMemory(data):

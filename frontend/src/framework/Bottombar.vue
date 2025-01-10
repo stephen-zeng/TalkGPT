@@ -10,6 +10,7 @@
     const socket = inject('socket');
     const disconnected = ref(true);
     const processing = ref(false);
+    const uninited = ref(true);
 
     function connect(operation) {
         if (operation == 'icon') {
@@ -46,6 +47,8 @@
                         disconnected.value = true;
                     } else if (data=='unConfigured') {
                         processing.value = false;
+                    } else if (data=='inited') {
+                        uninited.value = false;
                     }
                 }
             )
@@ -68,13 +71,13 @@
             </mdui-tooltip>
             <mdui-tooltip content="Type a message">
                 <SendText 
-                :disable="vadEnabled | disconnected | processing"
+                :disable="vadEnabled | disconnected | processing | uninited"
                 :uuid="prop.uuid"
                 @sent="processing = true"></SendText>
             </mdui-tooltip>
             <mdui-tooltip content="Say a message">
                 <SendVoice 
-                :disable="vadEnabled | disconnected | processing"
+                :disable="vadEnabled | disconnected | processing | uninited"
                 :uuid="prop.uuid"
                 @sent="processing = true"></SendVoice>
             </mdui-tooltip>

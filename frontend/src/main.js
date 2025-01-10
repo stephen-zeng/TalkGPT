@@ -7,7 +7,7 @@ import 'mdui'
 import './assets/main.css'
 
 const app = createApp(App);
-const socket = io('ws://127.0.0.1:11111');
+const socket = io('wss://talk-backend.goforit.top');
 const player = new Player();
 app.provide('socket', socket);
 app.provide('player', player);
