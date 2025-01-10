@@ -11,8 +11,10 @@ import requests
 gptSignal = Signal('gptSignal')
 global conversationUUID
 global memoryUUID
+global memoryUUIDUserVoice
 conversationUUID = 'None'
 memoryUUID = 'None'
+memoryUUIDUserVoice = 'None'
 
 # GPT的发送操作
 def gptNewConversation(data):
@@ -36,6 +38,9 @@ def gptUpdateConversation(data):
             "output_audio_format": "pcm16",
             "turn_detection": None,
             "voice": data['voice'],
+            "input_audio_transcription": {
+                "model": "whisper-1"
+            },
         }
     }
     ws.send(json.dumps(event))
@@ -70,36 +75,46 @@ def gptDelMemory(data):
 
 def gptNewVoice(): # 来自前端
     print("gptNewVoice")
+    global memoryUUIDUserVoice
     global memoryUUID
-    memoryUUID = modelNewMemory({
-        "message": "waiting for transcription",
+    memoryUUIDUserVoice = modelNewMemory({
+        "message": "Waiting for transcription",
         "voice": "None",
         "role": False,
         "serverid": "None",
         "uuid": conversationUUID,
     })['uuid']
+    memoryUUID = memoryUUIDUserVoice
+    print(memoryUUIDUserVoice)
 
 def gptAddVoice(data): # 来自前端，是alaw
     print("gptAddVoice")
     print(data)
+    print(memoryUUIDUserVoice)
     event = {
         "type": "input_audio_buffer.append",
         "audio": data['audio'],
     }
     ws.send(json.dumps(event))
     audioAdd({
-        "uuid": memoryUUID,
+        "uuid": memoryUUIDUserVoice,
         "audio": data['audio']
     })
 
 def gptSendVoice():
     print("gptSendVoice")
+    print(memoryUUIDUserVoice)
     modelEditMemory({
-        "uuid": memoryUUID,
+        "uuid": memoryUUIDUserVoice,
         "voice": audioEnd({
-            "uuid": memoryUUID,
+            "uuid": memoryUUIDUserVoice,
         }),
     })
+    event = {
+        "type": "input_audio_buffer.commit"
+    }
+    ws.send(json.dumps(event))
+
 
 def gptCancelVoice():
     print("gptCancelVoice")
@@ -128,9 +143,10 @@ def gptMemoryCreated(data): # item
 def gptMemoryTranscription(data):
     print("gptMemoryTranscription")
     print(data)
+    print(memoryUUIDUserVoice)
     modelEditMemory({
-        "serverid": data['item_id'],
-        "message": data['transription']
+        "uuid": memoryUUIDUserVoice,
+        "message": data['transcript'].rstrip()
     })
 
 def gptNewResponse(data):

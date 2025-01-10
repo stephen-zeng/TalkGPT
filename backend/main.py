@@ -130,8 +130,8 @@ def djangoRun(port):
 if __name__ == '__main__':
     main = threading.Thread(target=init, args=(11111,))
     download = threading.Thread(target=djangoRun, args=('8080',))
-    main.start()
     download.start()
+    main.start()
     main.join()
     download.join()
     gptDisconnect()
