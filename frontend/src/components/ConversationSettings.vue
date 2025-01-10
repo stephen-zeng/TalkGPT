@@ -8,7 +8,6 @@
     const socket = inject('socket');
 
     function openDialog() {
-        // console.log(conversation.value.model);
         socket.emit('model', 'data', 0);
         modelBtn.value = 'Model: ' + conversation.value.model;
         dialogStatus.value = true;
@@ -36,7 +35,6 @@
     }
     onMounted(
         ()=>{
-            // console.log("Hello?");
             socket.on('data_response',
                 (data)=>{
                     conversation.value = JSON.parse(data)[prop.index];

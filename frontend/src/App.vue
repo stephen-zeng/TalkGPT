@@ -11,14 +11,10 @@
 	const conversations = ref([]);
 	const vad = ref(false);
 	const socket = inject('socket');
+	const player = inject('player');
 	// const role = ref(false); // 1为GPT，0为用户
 
 	function changeSidebarStatus(way) {
-		// console.log(sidebarStatus.value)
-		// console.log(document.body.offsetWidth);
-		// let i = currentConversation.value
-		// let c = conversations.value
-		// console.log(c);
 		if (way) {
 			if (sidebarStatus.value) sidebarStatus.value = false;
 			else sidebarStatus.value = true;
@@ -33,14 +29,12 @@
 		else sidebarStatus.value = false;
 	}
 	function changeConversation(index) {
-		// console.log(index);
 		currentConversation.value = index;
 		socket.emit('openai', 'change', conversations.value[currentConversation.value]);
 		if (document.body.offsetWidth >= 850) sidebarStatus.value = true;
 		else sidebarStatus.value = false;
 	}
 	function deleteConversation() {
-		// console.log("delete signal from root app")
 		if (currentConversation.value != 0) currentConversation.value--;
 		if (conversations.value.length)
 			socket.emit('openai', 'change', conversations.value[currentConversation.value])
@@ -49,7 +43,6 @@
 		vad.value = newMode;
 	}
 	function getSocket() {
-		// console.log("Init WS");
 		socket.on('connect',
 			()=> {
 				console.log("WS Connected");
@@ -71,13 +64,13 @@
 				conversations.value = JSON.parse(data);
 			}
 		)
-		socket.on('openai_response',
+		socket.on('audio',
 			(data)=> {
-				if (data=='replying')
-				window.scrollBy({
-					top: document.documentElement.scrollHeight - window.scrollY,
-					behavior: 'smooth'
-				});
+				if (data['type']=='newAudio') {
+					player.clear();
+				} else if (data['type']=='addAudio') {
+					player.realtime(data['audio']);
+				}
 			}
 		)
 	}

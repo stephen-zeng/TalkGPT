@@ -10,5 +10,4 @@ modelSignal = signal('modelSignal')
 @receiver(post_delete, sender=Memory)
 @receiver(post_delete, sender=Conversation)
 def model_save(**kwargs):
-    print("Model Changed")
     modelSignal.send(0, operation='data', data=0)

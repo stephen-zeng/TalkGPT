@@ -24,7 +24,6 @@ export class Recorder {
      */
     async start() {
       if (this.isRecording) {
-        console.warn('录音已经在进行中。');
         return;
       }
   
@@ -39,7 +38,6 @@ export class Recorder {
   
         // 检查实际采样率
         const actualSampleRate = this.audioContext.sampleRate;
-        console.log(`AudioContext 采样率：${actualSampleRate} Hz`);
         const needsResampling = actualSampleRate !== this.targetSampleRate;
   
         // 创建源节点（麦克风的音频流）
@@ -75,9 +73,8 @@ export class Recorder {
         };
   
         this.isRecording = true;
-        console.log('录音已开始。');
       } catch (err) {
-        console.error('无法获取麦克风权限或初始化音频:', err);
+        console.error('Recording device error:', err);
         throw err;
       }
     }
@@ -111,7 +108,6 @@ export class Recorder {
       }
   
       this.isRecording = false;
-      console.log('录音已停止。');
     }
   
     /**

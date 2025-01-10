@@ -12,7 +12,6 @@
     const processing = ref(false);
 
     function connect(operation) {
-        // console.log(prop.uuid)
         if (operation == 'icon') {
             if (disconnected.value) return "play_arrow";
             else return "stop";
@@ -28,6 +27,15 @@
 
     onMounted(
         ()=>{
+            socket.on('backend', 
+                (data)=> {
+                    if (data=='processing') {
+                        processing.value = true;
+                    } else if (data=='processed') {
+                        processing.value = false;
+                    } 
+                }
+            )
             socket.on('openai_response', 
                 (data)=>{
                     if (data=='connected') {
@@ -37,8 +45,6 @@
                         processing.value = false;
                         disconnected.value = true;
                     } else if (data=='unConfigured') {
-                        processing.value = false;
-                    } else if (data=='replied') {
                         processing.value = false;
                     }
                 }

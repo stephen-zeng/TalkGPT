@@ -1,7 +1,6 @@
 from gevent import monkey
 monkey.patch_all()
 
-from django.core.management import call_command
 import django
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'talkgpt.settings')
@@ -18,7 +17,7 @@ from gpt import gptInit, gptConnect, gptDisconnect, gptSignal
 from gpt import gptNewConversation, gptUpdateConversation
 from gpt import gptNewMemory, gptDelMemory, gptRequire
 from gpt import gptNewVoice, gptAddVoice, gptCancelVoice, gptSendVoice
-from audio import audioDel
+from audio import audioDel, audioSend
 import gevent.pywsgi
 import socketio
 import django
@@ -46,7 +45,6 @@ def disconnect(sid):
 def model(sid, operation, data):
     match operation:
         case 'data':
-            print("Sending data")
             queryset = Conversation.objects.all().order_by('time')
             serializer = ConversationSerializer(queryset, many=True)
             if sid == 0:
@@ -73,6 +71,18 @@ def model(sid, operation, data):
             data['serverid'] = id['serverid']
             data['uuid'] = id['uuid']
             gptDelMemory(data)
+        case 'requireAudio':
+            sio.emit('backend', 'processing')
+            sio.emit('audio', {
+                "type": 'newAudio'
+            })
+            for chunk in audioSend(data):
+                sio.emit('audio', {
+                    'type': 'addAudio',
+                    'audio': chunk
+                })
+            sio.emit('backend', 'processed')
+        
         case _:
             print(f"From {sid}, receive an unknown operation")
 
@@ -82,7 +92,6 @@ def openai(sid, operation, data):
     match operation:
         case 'setConfig': # 来自前端
             print(f"From {sid}, set the config")
-            print(data)
             global api_key
             api_key = data['key']
             gptInit(key=api_key)
@@ -107,12 +116,24 @@ def openai(sid, operation, data):
             gptRequire()
         case 'connected': # 来自gpt
             sio.emit('openai_response', 'connected')
+            # sio.emit('backend', 'processed')
         case 'disconnected': # 来自gpt
             sio.emit('openai_response', 'disconnected')
+            # sio.emit('backend', 'processed')
         case 'replying':# 来自gpt
-            sio.emit('openai_response', 'replying')
+            sio.emit('backend', 'processing')
         case 'replied': # 来自gpt
-            sio.emit('openai_response', 'replied')
+            sio.emit('backend', 'processed')
+        case 'newAudio': # 来自gpt
+            sio.emit('audio', {
+                "type": 'newAudio'
+            })
+        case 'addAudio': # 来自gpt
+            sio.emit('audio', {
+                'type': 'addAudio',
+                'audio': data['audio']
+            })
+
             
 
 def init(port):
@@ -124,14 +145,8 @@ def init(port):
     )
     server.serve_forever()
 
-def djangoRun(port):
-    call_command('runserver', port)
-
 if __name__ == '__main__':
     main = threading.Thread(target=init, args=(11111,))
-    download = threading.Thread(target=djangoRun, args=('8080',))
-    download.start()
     main.start()
     main.join()
-    download.join()
     gptDisconnect()

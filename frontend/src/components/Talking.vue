@@ -1,10 +1,10 @@
 <script setup>
-    import { defineProps, inject } from 'vue';
+    import { defineProps, inject, onMounted, ref } from 'vue';
     const props = defineProps(['talking']);
     const socket = inject('socket');
+    const processing = ref(false);
     
     function setRole(role) { // 1为GPT，0为用户
-        // console.log(text.value);
         if (role) return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/openai.png";
         else return "https://gh.qwqwq.com.cn/stephen-zeng/img/master/user.png";
     }
@@ -17,11 +17,14 @@
         else return 'right';
     }
     function playAudio() {
-        console.log("play the audio");
+        if (processing.value) return;
+        socket.emit('model', 'requireAudio', {
+            uuid: props.talking.uuid
+        })
     }
     function deleteMemory() {
-        socket.emit('model', 'delMemory',
-            {
+        if (processing.value) return;
+        socket.emit('model', 'delMemory', {
                 uuid: props.talking.uuid
             }
         )
@@ -40,6 +43,20 @@
         const formattedTime = `${hours}:${minutes}:${seconds}`;
         return formattedDate + ' ' + formattedTime;
     }
+
+    onMounted(
+        ()=>{
+            socket.on('backend',
+                (data)=> {
+                    if (data=='processing') {
+                        processing.value = true;
+                    } else if (data=='processed') {
+                        processing.value = false;
+                    }
+                }
+            )
+        }
+    )
     
 </script>
 <template>
