@@ -8,7 +8,7 @@ import 'mdui'
 import './assets/main.css'
 
 const app = createApp(App);
-const socket = io('wss://backend.goforit.top/talkgpt');
+const socket = io('wss://talk-backend.goforit.top/');
 const player = new Player();
 app.provide('socket', socket);
 app.provide('player', player);
