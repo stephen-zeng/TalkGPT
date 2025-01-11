@@ -8,3 +8,4 @@ pydub==0.25.1
 python-dotenv==1.0.1
 python-socketio==5.12.1
 websocket_client==1.8.0
+audioop-lts==0.2.1

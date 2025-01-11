@@ -163,7 +163,7 @@ def init(port):
     server.serve_forever()
 
 if __name__ == '__main__':
-    main = threading.Thread(target=init, args=(os.getenv('PORT'),))
+    main = threading.Thread(target=init, args=(int(os.getenv('PORT')),))
     main.start()
     main.join()
     gptDisconnect()
