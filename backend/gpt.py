@@ -184,6 +184,7 @@ def gptResponseTranscription(data):
 
 def on_message(ws, receive):
     data = json.loads(receive)
+    print(data)
     print("Receive data from OpenAI")
     match data['type']:
         case "conversation.item.created":
