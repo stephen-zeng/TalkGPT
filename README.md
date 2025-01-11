@@ -15,8 +15,8 @@ pyenv virtualenv 3.13.0 talkgpt
 pyenv activate talkgpt
 ```
 + 然后将项目clone下来，进入`TalkGPT/backend`，将`.env-example`重命名为`.env`，进入更改环境变量。环境变量有4个
-+ + OPENAI_API_KEY - 这里填写自己的API秘钥，当使用密码时会使用这个秘钥
-+ + PASSWORD - 这里填写密码，你可以使用密码来方便地使用自己的KEY
++ + OPENAI_API_KEY - 这里是自己的API秘钥，当使用密码时会使用这个秘钥
++ + PASSWORD - 这里是密码，你可以使用密码来方便地使用自己的KEY
 + + PORT - 这里是你的websocket服务器将会使用的端口
 + + PROXY - 这里选填，如果你需要使用代理的话就填上自己的HTTP代理地址
 + 环境变量设置好后，运行一下命令
