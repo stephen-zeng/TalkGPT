@@ -45,6 +45,7 @@ def connect(sid, _):
     if (lastConnection != 'None'):
         sio.disconnect(lastConnection)
     lastConnection = sid
+    gptDisconnect()
 
 
 @sio.event
