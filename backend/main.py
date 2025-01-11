@@ -25,35 +25,29 @@ import socketio
 import django
 import json
 
-global currentConnection
-currentConnection = 0
+global lastConnection
+lastConnection = ''
 
 sio = socketio.Server(
     cors_allowed_origins='*',
     async_mode='gevent'
 )
 app = socketio.WSGIApp(sio)
-api_key = 'None'
-gpt_model = 'None'
 
 @sio.event
 def connect(sid, _):
     print("Client connected:", sid)
-    global currentConnection
-    if (currentConnection >= 1):
-        return False
-    currentConnection += 1
-    return True
+    global api_key
+    global gpt_model
+    api_key = 'None'
+    gpt_model = 'None'
+    sio.disconnect(lastConnection)
+    lastConnection = sid
+
 
 @sio.event
 def disconnect(sid):
     print("Client disconnected:", sid)
-    global currentConnection
-    global api_key
-    global gpt_model
-    currentConnection -= 1
-    api_key = 'None'
-    gpt_model = 'None'
     gptDisconnect()
 
 @modelSignal.connect
