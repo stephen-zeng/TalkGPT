@@ -1,13 +1,16 @@
 from blinker import Signal
 from core.methods import modelNewMemory, modelEditMemory, modelEditConversation
 from audio import audioAdd, audioEnd, audioDel
+from dotenv import load_dotenv
 import json
 import websocket
 import threading
 import time
 import os
-# os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
-# os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
+load_dotenv()
+if os.getenv('PROXY') is not None:
+    os.environ['HTTP_PROXY'] = os.getenv('PROXY')
+    os.environ['HTTPS_PROXY'] = os.getenv('PROXY')
 
 
 gptSignal = Signal('gptSignal')
@@ -228,11 +231,9 @@ def gptDisconnect():
     gptSignal.send(0, operation='disconnected', data=0)
 
 def gptInit(key):
-    global apikey
-    apikey = key
     url = "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-realtime-preview-2024-12-17"
     headers = [
-        "Authorization: Bearer " + apikey,
+        "Authorization: Bearer " + key,
         "OpenAI-Beta: realtime=v1"
     ]
     global ws

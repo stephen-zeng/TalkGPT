@@ -1,8 +1,10 @@
 from gevent import monkey
 monkey.patch_all()
 
+from dotenv import load_dotenv
 import django
 import os
+load_dotenv()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'talkgpt.settings')
 django.setup()
 
@@ -23,6 +25,9 @@ import socketio
 import django
 import json
 
+global currentConnection
+currentConnection = 0
+
 sio = socketio.Server(
     cors_allowed_origins='*',
     async_mode='gevent'
@@ -34,10 +39,17 @@ gpt_model = 'None'
 @sio.event
 def connect(sid, _):
     print("Client connected:", sid)
+    global currentConnection
+    if (currentConnection >= 1):
+        return False
+    currentConnection += 1
+    return True
 
 @sio.event
 def disconnect(sid):
     print("Client disconnected:", sid)
+    global currentConnection
+    currentConnection -= 1
     gptDisconnect()
 
 @modelSignal.connect
@@ -93,7 +105,10 @@ def openai(sid, operation, data):
         case 'setConfig': # 来自前端
             print(f"From {sid}, set the config")
             global api_key
-            api_key = data['key']
+            if (data['key'] == os.getenv('PASSWORD')):
+                api_key = os.getenv('OPENAI_API_KEY')
+            else:
+                api_key = data['key']
             gptInit(key=api_key)
         case 'connect': # 来自前端
             if api_key == 'None':
@@ -148,7 +163,7 @@ def init(port):
     server.serve_forever()
 
 if __name__ == '__main__':
-    main = threading.Thread(target=init, args=(11111,))
+    main = threading.Thread(target=init, args=(os.getenv('PORT'),))
     main.start()
     main.join()
     gptDisconnect()
