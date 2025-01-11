@@ -31,7 +31,7 @@ python main.py
 + 将项目clone下来，然后进入`TalkGPT/frontend/src`，将`example.main.js`重命名为`main.js`，打开，修改里面的后端服务器websocket地址：
 ```js
 const socket = io('wss://your-own-backend-server.com/');
-/* 将 "wss://your-own-backend-server.com/" 修改成你自己的后端服务器地址
+// 将 "wss://your-own-backend-server.com/" 修改成你自己的后端服务器地址 
 ```
 + 然后返回`TalkGPT/frontend`，运行一下命令部署
 ```bash
