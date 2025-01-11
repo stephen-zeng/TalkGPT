@@ -26,7 +26,7 @@ import django
 import json
 
 global lastConnection
-lastConnection = ''
+lastConnection = 'None'
 
 sio = socketio.Server(
     cors_allowed_origins='*',
@@ -41,7 +41,8 @@ def connect(sid, _):
     global gpt_model
     api_key = 'None'
     gpt_model = 'None'
-    sio.disconnect(lastConnection)
+    if (lastConnection != 'None'):
+        sio.disconnect(lastConnection)
     lastConnection = sid
 
 
