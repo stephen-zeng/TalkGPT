@@ -41,6 +41,7 @@ def connect(sid, _):
     global gpt_model
     api_key = 'None'
     gpt_model = 'None'
+    global lastConnection
     if (lastConnection != 'None'):
         sio.disconnect(lastConnection)
     lastConnection = sid
