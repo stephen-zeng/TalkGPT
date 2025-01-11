@@ -197,6 +197,7 @@ def on_message(ws, receive):
             gptResponseAudioDelta(data)
         case "response.audio.done":
             gptResponseAudioDone(data)
+            gptSignal.send(0, operation="replied", data=0)
         case "response.audio_transcript.delta":
             gptResponseTranscription(data)
             gptSignal.send(0, operation="replying", data=0)
