@@ -189,7 +189,6 @@ def on_message(ws, receive):
         case "conversation.item.created":
             gptMemoryCreated(data['item'])
         case "conversation.item.input_audio_transcription.completed":
-            gptSignal.send(0, operation="replying", data=0)
             gptMemoryTranscription(data)
         case "response.created":
             gptNewResponse(data['response'])
