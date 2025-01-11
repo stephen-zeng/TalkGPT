@@ -46,6 +46,12 @@ def connect(sid, _):
         sio.disconnect(lastConnection)
     lastConnection = sid
     gptDisconnect()
+    queryset = Conversation.objects.all().order_by('time')
+    serializer = ConversationSerializer(queryset, many=True)
+    if sid == 0:
+        sio.emit('data_response', json.dumps(serializer.data))
+    else:
+        sio.emit('data_response', json.dumps(serializer.data), room=sid)
 
 
 @sio.event
