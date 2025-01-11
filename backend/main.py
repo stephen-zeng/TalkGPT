@@ -49,7 +49,11 @@ def connect(sid, _):
 def disconnect(sid):
     print("Client disconnected:", sid)
     global currentConnection
+    global api_key
+    global gpt_model
     currentConnection -= 1
+    api_key = 'None'
+    gpt_model = 'None'
     gptDisconnect()
 
 @modelSignal.connect
