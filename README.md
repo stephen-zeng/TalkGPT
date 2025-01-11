@@ -1,5 +1,5 @@
 # TalkGPT
-打造你自己的真·聊天·机器人
+打造你自己的真·聊天·机器人~~（从名字都可以看出来这玩意儿能发声罢）~~
 效果图：
 ![](https://raw.githubusercontent.com/stephen-zeng/TalkGPT/master/img/oversee.png)
 
